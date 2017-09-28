@@ -1,12 +1,15 @@
 package com.example.anja.lab1;
 
+import android.app.Dialog;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+    implements ConfirmPasswordDialog.DialogListener{
 
     private static final String TAG = "MainActivity";
     private SectionsPageAdapter mSectionsPageAdapter;
@@ -37,4 +40,8 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setAdapter(adapter);
     }
 
+    @Override
+    public void onPasswordsMatch(String passwordStatus) {
+        Toast.makeText(this,"Passwords match", Toast.LENGTH_SHORT).show();
+    }
 }

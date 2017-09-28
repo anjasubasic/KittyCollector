@@ -182,6 +182,13 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
             public void afterTextChanged(Editable editable) {
 
             }
+
+            public void setSaveButtonStatus(String matchStatus) {
+                if (matchStatus == "true")
+                    clearButton.setVisibility(View.VISIBLE);
+                else
+                    clearButton.setVisibility(View.INVISIBLE);
+            }
         });
     }
 

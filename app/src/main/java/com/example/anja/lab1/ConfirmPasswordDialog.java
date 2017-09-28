@@ -1,8 +1,11 @@
 package com.example.anja.lab1;
 
+import android.app.Activity;
+import android.app.DialogFragment;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +15,12 @@ import android.widget.Toast;
 public class ConfirmPasswordDialog extends android.support.v4.app.DialogFragment {
 
     private boolean passwordsMatch = false;
+
+    public interface DialogListener {
+        void onPasswordsMatch(String passwordStatus);
+    }
+
+    DialogListener mListener;
 
     public String getMatchStatus(){
         return Boolean.toString(passwordsMatch);
@@ -43,6 +52,7 @@ public class ConfirmPasswordDialog extends android.support.v4.app.DialogFragment
                 if (charSequence.toString().equals(firstPassword))
                 {
                     passwordsMatch = true;
+
                     dismiss();
                     Toast.makeText(getActivity(),"Passwords match", Toast.LENGTH_SHORT).show();
                 }
@@ -53,5 +63,20 @@ public class ConfirmPasswordDialog extends android.support.v4.app.DialogFragment
         });
 
         return view;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        // Verify that the host activity implements the callback interface
+        try {
+            // Instantiate the NoticeDialogListener so we can send events to the host
+            mListener = (DialogListener) activity;
+        } catch (ClassCastException e) {
+            // The activity doesn't implement the interface, throw exception
+            throw new ClassCastException(activity.toString()
+                    + " must implement NoticeDialogListener");
+        }
+        Log.d("DIALOG", "attached");
     }
 }
