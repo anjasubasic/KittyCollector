@@ -1,5 +1,14 @@
 package com.example.anja.lab1;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
@@ -11,22 +20,30 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+
+
 
 /**
  * Created by Anja on 9/24/2017.
+ * Edited by Jenny 9/27/2017.
  */
 
 public class SettingsFragment extends android.support.v4.app.DialogFragment {
 
     private static final String TAG = "Settings";
     private ConfirmPasswordDialog dialog;
+    private ImageView profilePhoto;
+    public static String INTERNAL_FILE = "internal-file";
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.settings_fragment, container,false);
         final Button clearButton = (Button) view.findViewById(R.id.clear_button);
-        final Button saveButton = (Button) view.findViewById(R.id.save_button);
+        final Button profileButton = view.findViewById(R.id.profile_button);
+        final Button saveButton = view.findViewById(R.id.save_button);
+        profilePhoto = view.findViewById(R.id.imageProfile);
 
         clearButton.setOnClickListener(
                 new View.OnClickListener() {
@@ -45,6 +62,20 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
                     }
                 });
 
+        profileButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onProfileClicked(v);
+                }
+            });
+
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onSaveClicked(v);
+            }
+        });
+
         final EditText passwordTxtEdit = (EditText) view.findViewById(R.id.password_edit_text);
 
         passwordTxtEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -62,10 +93,31 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
             }
         });
 
+        loadProfile();
         setClearButtonVisibility(view);
 
         return view;
     }
+
+    public void onProfileClicked(View v) {
+        Log.d("MAIN", "moved to onProfileClicked");
+        // TODO: implement front-facing camera
+    }
+
+    public void onSaveClicked(View v) {
+        FileOutputStream saveFile = null;
+        try {
+            saveFile = getContext().openFileOutput(INTERNAL_FILE, Context.MODE_PRIVATE);
+            // TODO: saveFile.write();
+            saveFile.close();
+        } catch (FileNotFoundException e){
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // **---------- private helper functions ----------**
 
     private void setClearButtonVisibility(View view) {
 
@@ -132,4 +184,18 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
             }
         });
     }
+
+    private void loadProfile() {
+        try {
+            FileInputStream inputImage = getContext().openFileInput(getString(R.string.profileFileName));
+            Bitmap bmap = BitmapFactory.decodeStream(inputImage);
+            profilePhoto.setImageBitmap(bmap);
+            inputImage.close();
+        }
+        // get default profile photo if photo file not found
+        catch (IOException e) {
+            profilePhoto.setImageResource(R.drawable.shiba);
+        }
+    }
+
 }
