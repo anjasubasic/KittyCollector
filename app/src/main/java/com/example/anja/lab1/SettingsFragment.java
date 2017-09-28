@@ -22,8 +22,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-
-
 /**
  * Created by Anja on 9/24/2017.
  * Edited by Jenny 9/27/2017.
@@ -105,6 +103,7 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
     }
 
     public void onSaveClicked(View v) {
+        Log.d("MAIN", "moved to onSaveClicked");
         FileOutputStream saveFile = null;
         try {
             saveFile = getContext().openFileOutput(INTERNAL_FILE, Context.MODE_PRIVATE);

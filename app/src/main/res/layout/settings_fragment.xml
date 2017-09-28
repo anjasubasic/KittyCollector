@@ -8,7 +8,7 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:paddingHorizontal="15dp">
 
         <!-- Have an Account Button, Clear Buton -->
@@ -100,7 +100,6 @@
             android:layout_height="wrap_content"
             android:text="@string/pictureLabel"/>
 
-        <!--TODO: Add default image inside the RelativeLayout-->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -118,7 +117,6 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:layout_gravity="center"
-                android:onClick="onChangePhotoClicked"
                 android:text="@string/changeProfile"/>
 
         </LinearLayout>
