@@ -8,7 +8,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+    implements ConfirmPasswordDialog.DialogListener{
 
     private static final String TAG = "MainActivity";
     private SectionsPageAdapter mSectionsPageAdapter;
@@ -37,5 +38,10 @@ public class MainActivity extends AppCompatActivity {
         adapter.addFragment(new SettingsFragment(), "Settings");
 
         viewPager.setAdapter(adapter);
+    }
+
+    @Override
+    public void onPasswordsMatch(String passwordStatus) {
+        Toast.makeText(this,"Passwords match", Toast.LENGTH_SHORT).show();
     }
 }
