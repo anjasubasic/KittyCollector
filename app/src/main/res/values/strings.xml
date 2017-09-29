@@ -21,8 +21,6 @@
     <string name="profileFileName">profile_photo.png</string>
     <string name="profileSaveText">Saved User Information</string>
     <string name="password_status">Passwords Match</string>
-
-    <!-- Shared Pref key names -->
     <string name="saved_info">Saved Settings</string>
 
     <!-- TODO: Remove or change this placeholder text -->
