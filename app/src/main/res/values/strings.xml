@@ -16,6 +16,7 @@
     <string name="pictureLabel">Share your picture (optional):</string>
     <string name="saveButton">Save</string>
     <string name="confirmPassword">Retype your password to confirm:</string>
+    <string name="password_status">Passwords Match</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
