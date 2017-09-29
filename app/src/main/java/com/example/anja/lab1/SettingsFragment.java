@@ -10,6 +10,7 @@ import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -172,27 +173,26 @@ public class SettingsFragment extends Fragment {
 
     public void onSaveClicked(View v) {
         Log.d("MAIN", "moved to onSaveClicked");
-        FileOutputStream saveFile = null;
-        try {
-            saveFile = getContext().openFileOutput(INTERNAL_FILE, MODE_PRIVATE);
-            final EditText charTxtEdit = getActivity().findViewById(R.id.character_edit_text);
-            final EditText nameTxtEdit = getActivity().findViewById(R.id.name_edit_text);
-            final EditText passwordTxtEdit = getActivity().findViewById(R.id.password_edit_text);
+        Context context = getActivity();
+        final EditText charTxtEdit = getActivity().findViewById(R.id.character_edit_text);
+        final EditText nameTxtEdit = getActivity().findViewById(R.id.name_edit_text);
+        final EditText pwdTxtEdit = getActivity().findViewById(R.id.password_edit_text);
 
-            // TODO: saveFile.write();
-            saveProfile();
-            saveFile.flush();
-            saveFile.close();
-            Toast.makeText(getActivity().getApplicationContext(),
-                    getString(R.string.profileSaveText),
-                    Toast.LENGTH_SHORT).show();
-            // Close the activity
-            getActivity().finish();
-        } catch (FileNotFoundException e){
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        SharedPreferences sp = context.getSharedPreferences(
+                getString(R.string.saved_info), Context.MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString("character name", charTxtEdit.getText().toString());
+        editor.putString("full name", nameTxtEdit.getText().toString());
+        editor.putString("password", pwdTxtEdit.getText().toString());
+        editor.commit();
+
+        saveProfile();
+        Toast.makeText(getActivity().getApplicationContext(),
+                getString(R.string.profileSaveText),
+                Toast.LENGTH_SHORT).show();
+        // Close the activity
+        getActivity().finish();
     }
 
     // **---------- private helper functions ----------**
