@@ -43,27 +43,16 @@ import static android.content.Context.MODE_PRIVATE;
 public class SettingsFragment extends android.support.v4.app.DialogFragment {
 
     public static final int REQUEST_IMAGE_CAPTURE = 1;
-    public static final int REQUEST_CODE_TAKE_FROM_CAMERA = 0;
-
-    private static final String IMAGE_UNSPECIFIED = "image/*";
-    private static final String URI_INSTANCE_STATE_KEY = "saved_uri";
-    public static String INTERNAL_FILE = "internal-file";
+    private static final String URI_STATE_KEY = "saved_uri";
     int requestCode = 123;
+
     private boolean passwordsMatch;
     private boolean inputValid;
-    private String dialogPassword;
-    private String fragmentPassword;
-
-
-    private ConfirmPasswordDialog dialog;
+    private String dialogPassword, fragmentPassword;
     private ImageView profilePhoto;
-    private EditText charTxtEdit;
-    private EditText nameTxtEdit;
-    private EditText pwdTxtEdit;
-    private Button clearButton;
-    private Button saveButton;
-    private Bitmap bitmap;
-    private Uri mUri;
+    private EditText charTxtEdit, nameTxtEdit, pwdTxtEdit;
+    private Button clearButton, saveButton, profileButton;
+    private Uri imageUri, croppedUri;
     private boolean isTakenFromCamera;
 
     @Nullable
@@ -73,55 +62,46 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         ImageView check = view.findViewById(R.id.nameCheck);
         check.setImageResource(R.drawable.checkmark);
 
-        final Button profileButton = view.findViewById(R.id.profile_button);
-
         profilePhoto = view.findViewById(R.id.imageProfile);
         charTxtEdit = view.findViewById(R.id.character_edit_text);
         nameTxtEdit = view.findViewById(R.id.name_edit_text);
         pwdTxtEdit = view.findViewById(R.id.password_edit_text);
         clearButton = view.findViewById(R.id.clear_button);
         saveButton = view.findViewById(R.id.save_button);
+        profileButton = view.findViewById(R.id.profile_button);
 
         clearButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        final EditText charTxtEdit = (EditText) getActivity().findViewById(R.id.character_edit_text);
-                        final EditText nameTxtEdit = (EditText) getActivity().findViewById(R.id.name_edit_text);
-                        final EditText passwordTxtEdit = (EditText) getActivity().findViewById(R.id.password_edit_text);
-
                         charTxtEdit.getText().clear();
                         nameTxtEdit.getText().clear();
-                        passwordTxtEdit.getText().clear();
+                        pwdTxtEdit.getText().clear();
                         profilePhoto.setImageResource(R.drawable.shiba);
 
-                        // disable save button if all input was clear set the passwordsMatch boolean back to false
+                        // disable buttons and reset password match boolean
                         saveButton.setEnabled(false);
                         passwordsMatch = false;
+                        clearButton.setVisibility(View.INVISIBLE);
                     }
                 });
 
         profileButton.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
-                    onProfileClicked(v);
-                }
+                public void onClick(View v) { onProfileClicked(); }
             });
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                onSaveClicked(v);
-            }
+            public void onClick(View v) { onSaveClicked(); }
         });
 
-        final EditText passwordTxtEdit = (EditText) view.findViewById(R.id.password_edit_text);
         final Fragment fragment = this;
 
-        passwordTxtEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        pwdTxtEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                String password = passwordTxtEdit.getText().toString();
+                String password = pwdTxtEdit.getText().toString();
 
                 // only show dialog if the user has typed in a password
                 if (!hasFocus && password.length() != 0) {
@@ -135,23 +115,25 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
 
         loadProfile();
         loadPreferences();
-        setClearButtonVisibility(view);
+        setClearButtonVisibility();
         setSaveButtonEnabled();
 
         return view;
     }
 
-    public void onProfileClicked(View v) {
+    // onProfileClicked: send image capture intent to the camera
+    // NOTE: some code has been taken from the camera example discussed in class.
+    public void onProfileClicked() {
         Log.d("STATE", "onProfileClicked");
         // TODO: implement front-facing camera
-
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
         // Construct temporary image path and name to save the taken photo
         ContentValues values = new ContentValues(1);
         values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpg");
-        mUri = getActivity().getContentResolver().insert(
+        imageUri = getActivity().getContentResolver().insert(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mUri);
+        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
         takePictureIntent.putExtra("return-data", true);
 
         if (takePictureIntent.resolveActivity(getContext().getPackageManager()) != null) {
@@ -160,39 +142,41 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
             } catch (ActivityNotFoundException e) {
                 e.printStackTrace();
             }
-            isTakenFromCamera = true;
-//            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
         }
+    }
+
+    // onSaveClicked: save data to sharedPreferences and close application
+    public void onSaveClicked() {
+        Log.d("STATE", "onSaveClicked");
+        savePreferences();
+        saveProfile();
+        Toast.makeText(getActivity().getApplicationContext(), getString(R.string.profileSaveText),
+                Toast.LENGTH_SHORT).show();
+        getActivity().finish();
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
+        // for handing the password check
         String dialogPassword = ConfirmPasswordDialog.dialogPassword;
-
         if (requestCode == ConfirmPasswordDialog.requestCode && fragmentPassword.equals(dialogPassword)) {
-            Toast.makeText(getActivity(), "Passwords Match", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), R.string.password_status, Toast.LENGTH_SHORT).show();
             this.dialogPassword = dialogPassword;
             passwordsMatch = true;
             setSaveButtonEnabled();
         }
-
-//        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-////            Crop.of(source, destination).asSquare().start(getActivity().getApplicationContext(),this);
-////            Bundle extras = data.getExtras();
-////            bitmap = (Bitmap) extras.get("data");
-//            Uri targetUri = data.getData();
-//            mUri = targetUri;
-//            Log.d("URI_Create", mUri.toString());
-//            profilePhoto.setImageBitmap(bitmap);
-//        }
         else if (resultCode != RESULT_OK)
             return;
 
+        /**
+         * Crop code taken from camera example by Varun
+         * deleting temporary image was taken out because the file was needed for saving the state.
+         */
         switch (requestCode) {
             case REQUEST_IMAGE_CAPTURE:
                 // Send image taken from camera for cropping
-                beginCrop(mUri);
+                beginCrop(imageUri);
                 break;
 
             case Crop.REQUEST_CROP: //We changed the RequestCode to the one being used by the library.
@@ -201,8 +185,11 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
 
                 // Delete temporary image taken by camera after crop.
                 if (isTakenFromCamera) {
-                    File f = new File(mUri.getPath());
+                    Log.d("ORIGINAL", imageUri.toString());
+                    Log.d("CROPPED", croppedUri.toString());
+                    File f = new File(imageUri.getPath());
                     if (f.exists())
+                        Log.d("DELETE_URI", "file exists so I'm getting rid of it");
                         f.delete();
                 }
 
@@ -213,14 +200,11 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        // save the bitmap
         Log.d("STATE", "onSaveState");
-        outState.putParcelable("IMG", bitmap);
-        if (mUri != null) {
-            outState.putParcelable("uri", mUri);
-            Log.d("URI_Save", mUri.toString());
+        if (croppedUri != null) {
+            outState.putParcelable(URI_STATE_KEY, croppedUri);
+            Log.d("URI_Save", croppedUri.toString());
         }
-
     }
 
     @Override
@@ -228,9 +212,10 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         super.onActivityCreated(savedInstanceState);
         Log.d("STATE", "onRestoreState");
         if(savedInstanceState != null) {
-            if (mUri != null) {
-                mUri = savedInstanceState.getParcelable("uri");
-                profilePhoto.setImageURI(mUri);
+            croppedUri = savedInstanceState.getParcelable(URI_STATE_KEY);
+            if (croppedUri != null) {
+                Log.d("URI_Load", croppedUri.toString());
+                profilePhoto.setImageURI(croppedUri);
             }
         }
         else {
@@ -238,51 +223,25 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         }
     }
 
-    public void onSaveClicked(View v) {
-        Log.d("STATE", "onSaveClicked");
-        savePreferences();
-        saveProfile();
-
-        Toast.makeText(getActivity().getApplicationContext(), getString(R.string.profileSaveText),
-                Toast.LENGTH_SHORT).show();
-
-        getActivity().finish();
-    }
-
     // **---------- private helper functions ----------**
 
     private void setSaveButtonEnabled() {
-        if (passwordsMatch && inputValid) {
+        if (passwordsMatch && inputValid ) {
             saveButton.setEnabled(true);
         } else {
             saveButton.setEnabled(false);
         }
     }
 
-    private void setClearButtonVisibility(final View view) {
-
+    private void setClearButtonVisibility() {
         //TODO: We should clean this up if we can. I didn't know how to create a TextWatcher for multiple EditTexts so I just left it like this for now.
-
-        final EditText charTxtEdit = (EditText) view.findViewById(R.id.character_edit_text);
-        final EditText nameTxtEdit = (EditText) view.findViewById(R.id.name_edit_text);
-        final EditText passwordTxtEdit = (EditText) view.findViewById(R.id.password_edit_text);
-        final Button clearButton = view.findViewById(R.id.clear_button);
-
         charTxtEdit.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (charTxtEdit.getText().length() == 0 && nameTxtEdit.getText().length()
-                        == 0 && passwordTxtEdit.getText().length() == 0) {
-                    clearButton.setVisibility(View.INVISIBLE);
-                    inputValid = false;
-                }
-                else {
-                    inputValid = true;
-                    clearButton.setVisibility(View.VISIBLE);
-                }
+                checkInput();
 
                 if (charTxtEdit.getText().length() == 0) {
                     inputValid = false;
@@ -297,20 +256,11 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
 
         nameTxtEdit.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (charTxtEdit.getText().length() == 0 && nameTxtEdit.getText().length() == 0 && passwordTxtEdit.getText().length() == 0) {
-                    clearButton.setVisibility(View.INVISIBLE);
-                    inputValid = false;
-                }
-                else {
-                    inputValid = true;
-                    clearButton.setVisibility(View.VISIBLE);
-                }
+                checkInput();
 
                 if (nameTxtEdit.getText().length() == 0) {
                     inputValid = false;
@@ -320,31 +270,21 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
             }
 
             @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
+            public void afterTextChanged(Editable editable) { }
         });
 
-        passwordTxtEdit.addTextChangedListener(new TextWatcher() {
+        pwdTxtEdit.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                fragmentPassword = passwordTxtEdit.getText().toString();
+                checkInput();
 
-                if (charTxtEdit.getText().length() == 0 && nameTxtEdit.getText().length() == 0 && passwordTxtEdit.getText().length() == 0) {
-                    inputValid = false;
-                    clearButton.setVisibility(View.INVISIBLE);
-                }
-                else {
-                    inputValid = true;
-                    clearButton.setVisibility(View.VISIBLE);
-                }
+                fragmentPassword = pwdTxtEdit.getText().toString();
 
-                if (passwordTxtEdit.getText().length() == 0) {
+
+                if (pwdTxtEdit.getText().length() == 0) {
                     inputValid = false;
                 }
 
@@ -365,11 +305,22 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         });
     }
 
+    private void checkInput() {
+        if (charTxtEdit.getText().length() == 0 && nameTxtEdit.getText().length() == 0 && pwdTxtEdit.getText().length() == 0) {
+            clearButton.setVisibility(View.INVISIBLE);
+            inputValid = false;
+        }
+        else {
+            inputValid = true;
+            clearButton.setVisibility(View.VISIBLE);
+        }
+    }
+
     private void loadProfile() {
         try {
             FileInputStream inputImage = getContext().openFileInput(getString(R.string.profileFileName));
-            Bitmap bmap = BitmapFactory.decodeStream(inputImage);
-            profilePhoto.setImageBitmap(bmap);
+            Bitmap profile = BitmapFactory.decodeStream(inputImage);
+            profilePhoto.setImageBitmap(profile);
             inputImage.close();
         }
         // get default profile photo if photo file not found
@@ -381,11 +332,11 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
     private void saveProfile() {
         // Save profile image into internal storage.
         profilePhoto.buildDrawingCache();
-        Bitmap bmap = profilePhoto.getDrawingCache();
+        Bitmap profile = profilePhoto.getDrawingCache();
         try {
             FileOutputStream fos = getContext().openFileOutput(
                     getString(R.string.profileFileName), MODE_PRIVATE);
-            bmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            profile.compress(Bitmap.CompressFormat.PNG, 100, fos);
             fos.flush();
             fos.close();
         } catch (IOException ioe) {
@@ -422,9 +373,7 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
     }
 
     /** Method to start Crop activity using the library
-     *	Earlier the code used to start a new intent to crop the image,
-     *	but here the library is handling the creation of an Intent, so you don't
-     * have to.
+     * (code taken from camera example discussed by Varun in class)
      *  **/
     private void beginCrop(Uri source) {
         Uri destination = Uri.fromFile(new File(getActivity().getCacheDir(), "cropped"));
@@ -434,8 +383,17 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
     private void handleCrop(int resultCode, Intent result) {
         if (resultCode == RESULT_OK) {
             profilePhoto.setImageURI(Crop.getOutput(result));
+            clearButton.setVisibility(View.VISIBLE);
+            isTakenFromCamera = true;
+
+            // save uri for bundle
+            Uri targetUri = Crop.getOutput(result);
+            croppedUri = targetUri;
+            Log.d("URI_afterCrop", croppedUri.toString());
+
         } else if (resultCode == Crop.RESULT_ERROR) {
-            Toast.makeText(getActivity().getApplicationContext(), Crop.getError(result).getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity().getApplicationContext(),
+                    Crop.getError(result).getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 

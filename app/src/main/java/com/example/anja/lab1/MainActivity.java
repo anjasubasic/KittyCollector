@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Code to check for runtime permissions.
+     * (code taken from camera example by Varun)
      */
     private void checkPermissions() {
         if(Build.VERSION.SDK_INT < 23)
