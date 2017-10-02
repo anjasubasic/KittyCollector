@@ -2,10 +2,8 @@ package com.example.anja.lab1;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
 import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Context;
@@ -29,9 +27,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 import com.soundcloud.android.crop.Crop;
-
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
 
@@ -44,7 +40,6 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
 
     public static final int REQUEST_IMAGE_CAPTURE = 1;
     public static final int REQUEST_CODE_TAKE_FROM_CAMERA = 0;
-
     private static final String IMAGE_UNSPECIFIED = "image/*";
     private static final String URI_INSTANCE_STATE_KEY = "saved_uri";
     public static String INTERNAL_FILE = "internal-file";
@@ -53,8 +48,6 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
     private boolean inputValid;
     private String dialogPassword;
     private String fragmentPassword;
-
-
     private ConfirmPasswordDialog dialog;
     private ImageView profilePhoto;
     private EditText charTxtEdit;
@@ -135,8 +128,8 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
 
         loadProfile();
         loadPreferences();
-        setClearButtonVisibility(view);
         setSaveButtonEnabled();
+        setClearButtonVisibility(view);
 
         return view;
     }
@@ -348,7 +341,7 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
                     inputValid = false;
                 }
 
-                if (dialogPassword == fragmentPassword) {
+                if (dialogPassword.equals(fragmentPassword)) {
                     passwordsMatch = true;
                 }
 
@@ -399,12 +392,13 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         charTxtEdit.setText(sp.getString("character name", ""));
         nameTxtEdit.setText(sp.getString("full name", ""));
         pwdTxtEdit.setText(sp.getString("password", ""));
-        inputValid = sp.getBoolean("input valid", true);
-        passwordsMatch = sp.getBoolean("passwords match", true);
+        inputValid = sp.getBoolean("input valid", false);
+        passwordsMatch = sp.getBoolean("passwords match", false);
+        dialogPassword = sp.getString("dialog password", "");
+
         if (sp != null) {
             clearButton.setVisibility(View.VISIBLE);
         }
-        setSaveButtonEnabled();
     }
 
     private void savePreferences() {
@@ -417,6 +411,7 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         editor.putString("password", pwdTxtEdit.getText().toString());
         editor.putBoolean("input valid", inputValid);
         editor.putBoolean("passwords match", passwordsMatch);
+        editor.putString("dialog password", dialogPassword);
 
         editor.commit();
     }
