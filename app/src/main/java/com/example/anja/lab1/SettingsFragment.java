@@ -33,7 +33,7 @@ import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by Anja on 9/24/2017.
- * Edited by Jenny 10/01/2017.
+ * Edited by Jenny 10/02/2017.
  */
 
 public class SettingsFragment extends android.support.v4.app.DialogFragment {
@@ -46,7 +46,6 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
     private boolean passwordsMatch;
     private boolean inputValid;
     private String dialogPassword, fragmentPassword;
-    private ConfirmPasswordDialog dialog;
     private ImageView profilePhoto;
     private EditText charTxtEdit, nameTxtEdit, pwdTxtEdit;
     private Button clearButton, saveButton, profileButton;
@@ -184,11 +183,8 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
 
                 // Delete temporary image taken by camera after crop.
                 if (isTakenFromCamera) {
-                    Log.d("ORIGINAL", imageUri.toString());
-                    Log.d("CROPPED", croppedUri.toString());
                     File f = new File(imageUri.getPath());
                     if (f.exists())
-                        Log.d("DELETE_URI", "file exists so I'm getting rid of it");
                         f.delete();
                 }
 
@@ -202,7 +198,6 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         Log.d("STATE", "onSaveState");
         if (croppedUri != null) {
             outState.putParcelable(URI_STATE_KEY, croppedUri);
-            Log.d("URI_Save", croppedUri.toString());
         }
         if (dialogPassword != null) {
             outState.putString(PWD_STATE_KEY, dialogPassword);
@@ -217,7 +212,6 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
             croppedUri = savedInstanceState.getParcelable(URI_STATE_KEY);
             dialogPassword = savedInstanceState.getString(PWD_STATE_KEY);
             if (croppedUri != null) {
-                Log.d("URI_Load", croppedUri.toString());
                 profilePhoto.setImageURI(croppedUri);
             }
         }
@@ -394,7 +388,6 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
             // save uri for bundle
             Uri targetUri = Crop.getOutput(result);
             croppedUri = targetUri;
-            Log.d("URI_afterCrop", croppedUri.toString());
 
         } else if (resultCode == Crop.RESULT_ERROR) {
             Toast.makeText(getActivity().getApplicationContext(),
