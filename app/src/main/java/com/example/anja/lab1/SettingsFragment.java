@@ -40,6 +40,7 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
 
     public static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final String URI_STATE_KEY = "saved_uri";
+    private static final String PWD_STATE_KEY = "dialog_password";
     int requestCode = 123;
 
     private boolean passwordsMatch;
@@ -203,6 +204,9 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
             outState.putParcelable(URI_STATE_KEY, croppedUri);
             Log.d("URI_Save", croppedUri.toString());
         }
+        if (dialogPassword != null) {
+            outState.putString(PWD_STATE_KEY, dialogPassword);
+        }
     }
 
     @Override
@@ -211,6 +215,7 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         Log.d("STATE", "onRestoreState");
         if(savedInstanceState != null) {
             croppedUri = savedInstanceState.getParcelable(URI_STATE_KEY);
+            dialogPassword = savedInstanceState.getString(PWD_STATE_KEY);
             if (croppedUri != null) {
                 Log.d("URI_Load", croppedUri.toString());
                 profilePhoto.setImageURI(croppedUri);
