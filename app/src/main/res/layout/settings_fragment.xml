@@ -8,21 +8,21 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:paddingHorizontal="15dp">
 
         <!-- Have an Account Button, Clear Buton -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
+            android:layout_gravity="end"
             android:layout_marginVertical="5dp"
             android:orientation="horizontal">
             <Button
                 android:id="@+id/clear_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Clear"
+                android:text="@string/clearButton"
                 android:visibility="invisible">
             </Button>
 
@@ -47,17 +47,24 @@
             android:layout_marginVertical="5dp">
             <EditText
                 android:id="@+id/character_edit_text"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:hint=""/>
 
+            <ImageView
+                android:id="@+id/nameCheck"
+                android:layout_width="30dp"
+                android:layout_height="28dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="20dp"/>
+
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:text="@string/availableLabel"
-                android:layout_weight="1"
-                android:layout_marginLeft="10dp"/>
+                android:layout_margin="5dp"/>
 
 
         </LinearLayout>
@@ -91,14 +98,28 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/pictureLabel">
-        </TextView>
+            android:text="@string/pictureLabel"/>
 
-        <!--TODO: Add default image inside the RelativeLayout-->
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-        </RelativeLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/imageProfile"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_margin="10dp"/>
+
+            <Button
+                android:id="@+id/profile_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:layout_gravity="center"
+                android:text="@string/changeProfile"/>
+
+        </LinearLayout>
 
         <!-- Save button -->
         <RelativeLayout
@@ -109,8 +130,7 @@
                 android:id="@+id/save_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/saveButton"
-                android:enabled="false"/>
+                android:text="@string/saveButton" />
         </RelativeLayout>
     </LinearLayout>
 </ScrollView>
