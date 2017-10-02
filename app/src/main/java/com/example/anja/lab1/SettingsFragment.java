@@ -17,6 +17,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -36,7 +37,7 @@ import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by Anja on 9/24/2017.
- * Edited by Jenny 9/27/2017.
+ * Edited by Jenny 10/01/2017.
  */
 
 public class SettingsFragment extends android.support.v4.app.DialogFragment {
@@ -47,13 +48,20 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
     private static final String IMAGE_UNSPECIFIED = "image/*";
     private static final String URI_INSTANCE_STATE_KEY = "saved_uri";
     public static String INTERNAL_FILE = "internal-file";
-    private static final String TAG = "Settings";
+    int requestCode = 123;
+    private boolean passwordsMatch;
+    private boolean inputValid;
+    private String dialogPassword;
+    private String fragmentPassword;
+
 
     private ConfirmPasswordDialog dialog;
     private ImageView profilePhoto;
     private EditText charTxtEdit;
     private EditText nameTxtEdit;
     private EditText pwdTxtEdit;
+    private Button clearButton;
+    private Button saveButton;
     private Bitmap bitmap;
     private Uri mUri;
     private boolean isTakenFromCamera;
@@ -61,19 +69,18 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.settings_fragment, container,false);
+        final View view = inflater.inflate(R.layout.settings_fragment, container,false);
         ImageView check = view.findViewById(R.id.nameCheck);
         check.setImageResource(R.drawable.checkmark);
 
-        final Button clearButton = (Button) view.findViewById(R.id.clear_button);
         final Button profileButton = view.findViewById(R.id.profile_button);
-        final Button saveButton = view.findViewById(R.id.save_button);
 
         profilePhoto = view.findViewById(R.id.imageProfile);
         charTxtEdit = view.findViewById(R.id.character_edit_text);
         nameTxtEdit = view.findViewById(R.id.name_edit_text);
         pwdTxtEdit = view.findViewById(R.id.password_edit_text);
-
+        clearButton = view.findViewById(R.id.clear_button);
+        saveButton = view.findViewById(R.id.save_button);
 
         clearButton.setOnClickListener(
                 new View.OnClickListener() {
@@ -86,9 +93,11 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
                         charTxtEdit.getText().clear();
                         nameTxtEdit.getText().clear();
                         passwordTxtEdit.getText().clear();
+                        profilePhoto.setImageResource(R.drawable.shiba);
 
-                        // disable save button if all input was clear. Also need to set the passwordsMatch boolean back to false
+                        // disable save button if all input was clear set the passwordsMatch boolean back to false
                         saveButton.setEnabled(false);
+                        passwordsMatch = false;
                     }
                 });
 
@@ -107,6 +116,7 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         });
 
         final EditText passwordTxtEdit = (EditText) view.findViewById(R.id.password_edit_text);
+        final Fragment fragment = this;
 
         passwordTxtEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -117,8 +127,8 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
                 if (!hasFocus && password.length() != 0) {
                     FragmentManager manager = getFragmentManager();
                     ConfirmPasswordDialog myDialog = ConfirmPasswordDialog.newInstance(password);
+                    myDialog.setTargetFragment(fragment, requestCode);
                     myDialog.show(manager, "ConfirmPasswordDialog");
-                    Log.d("MAIN", "focus lost in edittext");
                 }
             }
         });
@@ -126,6 +136,7 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         loadProfile();
         loadPreferences();
         setClearButtonVisibility(view);
+        setSaveButtonEnabled();
 
         return view;
     }
@@ -156,6 +167,16 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        String dialogPassword = ConfirmPasswordDialog.dialogPassword;
+
+        if (requestCode == ConfirmPasswordDialog.requestCode && fragmentPassword.equals(dialogPassword)) {
+            Toast.makeText(getActivity(), "Passwords Match", Toast.LENGTH_SHORT).show();
+            this.dialogPassword = dialogPassword;
+            passwordsMatch = true;
+            setSaveButtonEnabled();
+        }
+
 //        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
 ////            Crop.of(source, destination).asSquare().start(getActivity().getApplicationContext(),this);
 ////            Bundle extras = data.getExtras();
@@ -165,7 +186,7 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
 //            Log.d("URI_Create", mUri.toString());
 //            profilePhoto.setImageBitmap(bitmap);
 //        }
-        if (resultCode != RESULT_OK)
+        else if (resultCode != RESULT_OK)
             return;
 
         switch (requestCode) {
@@ -230,7 +251,15 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
 
     // **---------- private helper functions ----------**
 
-    private void setClearButtonVisibility(View view) {
+    private void setSaveButtonEnabled() {
+        if (passwordsMatch && inputValid) {
+            saveButton.setEnabled(true);
+        } else {
+            saveButton.setEnabled(false);
+        }
+    }
+
+    private void setClearButtonVisibility(final View view) {
 
         //TODO: We should clean this up if we can. I didn't know how to create a TextWatcher for multiple EditTexts so I just left it like this for now.
 
@@ -245,10 +274,21 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (charTxtEdit.getText().length() == 0 && nameTxtEdit.getText().length() == 0 && passwordTxtEdit.getText().length() == 0)
+                if (charTxtEdit.getText().length() == 0 && nameTxtEdit.getText().length()
+                        == 0 && passwordTxtEdit.getText().length() == 0) {
                     clearButton.setVisibility(View.INVISIBLE);
-                else
+                    inputValid = false;
+                }
+                else {
+                    inputValid = true;
                     clearButton.setVisibility(View.VISIBLE);
+                }
+
+                if (charTxtEdit.getText().length() == 0) {
+                    inputValid = false;
+                }
+
+                setSaveButtonEnabled();
             }
 
             @Override
@@ -263,10 +303,20 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (charTxtEdit.getText().length() == 0 && nameTxtEdit.getText().length() == 0 && passwordTxtEdit.getText().length() == 0)
+                if (charTxtEdit.getText().length() == 0 && nameTxtEdit.getText().length() == 0 && passwordTxtEdit.getText().length() == 0) {
                     clearButton.setVisibility(View.INVISIBLE);
-                else
+                    inputValid = false;
+                }
+                else {
+                    inputValid = true;
                     clearButton.setVisibility(View.VISIBLE);
+                }
+
+                if (nameTxtEdit.getText().length() == 0) {
+                    inputValid = false;
+                }
+
+                setSaveButtonEnabled();
             }
 
             @Override
@@ -283,23 +333,35 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (charTxtEdit.getText().length() == 0 && nameTxtEdit.getText().length() == 0 && passwordTxtEdit.getText().length() == 0)
+                fragmentPassword = passwordTxtEdit.getText().toString();
+
+                if (charTxtEdit.getText().length() == 0 && nameTxtEdit.getText().length() == 0 && passwordTxtEdit.getText().length() == 0) {
+                    inputValid = false;
                     clearButton.setVisibility(View.INVISIBLE);
-                else
+                }
+                else {
+                    inputValid = true;
                     clearButton.setVisibility(View.VISIBLE);
+                }
+
+                if (passwordTxtEdit.getText().length() == 0) {
+                    inputValid = false;
+                }
+
+                if (dialogPassword == fragmentPassword) {
+                    passwordsMatch = true;
+                }
+
+                else {
+                    passwordsMatch = false;
+                }
+
+                setSaveButtonEnabled();
             }
 
             @Override
-            public void afterTextChanged(Editable editable) {
+            public void afterTextChanged(Editable editable) {}
 
-            }
-
-            public void setSaveButtonStatus(String matchStatus) {
-                if (matchStatus == "true")
-                    clearButton.setVisibility(View.VISIBLE);
-                else
-                    clearButton.setVisibility(View.INVISIBLE);
-            }
         });
     }
 
@@ -337,6 +399,12 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         charTxtEdit.setText(sp.getString("character name", ""));
         nameTxtEdit.setText(sp.getString("full name", ""));
         pwdTxtEdit.setText(sp.getString("password", ""));
+        inputValid = sp.getBoolean("input valid", true);
+        passwordsMatch = sp.getBoolean("passwords match", true);
+        if (sp != null) {
+            clearButton.setVisibility(View.VISIBLE);
+        }
+        setSaveButtonEnabled();
     }
 
     private void savePreferences() {
@@ -347,6 +415,8 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         editor.putString("character name", charTxtEdit.getText().toString());
         editor.putString("full name", nameTxtEdit.getText().toString());
         editor.putString("password", pwdTxtEdit.getText().toString());
+        editor.putBoolean("input valid", inputValid);
+        editor.putBoolean("passwords match", passwordsMatch);
 
         editor.commit();
     }

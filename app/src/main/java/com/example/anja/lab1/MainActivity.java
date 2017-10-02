@@ -14,9 +14,7 @@ import android.util.Log;
 import android.widget.Toast;
 import com.soundcloud.android.crop.Crop;
 
-public class MainActivity extends AppCompatActivity
-    implements ConfirmPasswordDialog.DialogListener{
-
+public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private SectionsPageAdapter mSectionsPageAdapter;
     private ViewPager mViewPager;
@@ -86,8 +84,4 @@ public class MainActivity extends AppCompatActivity
         viewPager.setAdapter(adapter);
     }
 
-    @Override
-    public void onPasswordsMatch(String passwordStatus) {
-        Toast.makeText(this,"Passwords match", Toast.LENGTH_SHORT).show();
-    }
 }
