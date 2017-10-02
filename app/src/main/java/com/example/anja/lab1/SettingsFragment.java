@@ -6,11 +6,14 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import android.content.ActivityNotFoundException;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
@@ -25,6 +28,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.soundcloud.android.crop.Crop;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
@@ -49,7 +54,9 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
     private EditText charTxtEdit;
     private EditText nameTxtEdit;
     private EditText pwdTxtEdit;
-    Bitmap bitmap;
+    private Bitmap bitmap;
+    private Uri mUri;
+    private boolean isTakenFromCamera;
 
     @Nullable
     @Override
@@ -124,55 +131,100 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
     }
 
     public void onProfileClicked(View v) {
-        Log.d("MAIN", "moved to onProfileClicked");
+        Log.d("STATE", "onProfileClicked");
         // TODO: implement front-facing camera
 
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-//        // Construct temporary image path and name to save the take photo
-//        ContentValues values = new ContentValues(1);
-//        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpg");
-//        mImageCaptureUri = getActivity().getContentResolver().insert(
-//                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-//
-//        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mImageCaptureUri);
-//        takePictureIntent.putExtra("return-data", true);
-
-//        try {
-//            // Start a camera capturing activity
-//            // REQUEST_CODE_TAKE_FROM_CAMERA is an integer tag you
-//            // defined to identify the activity in onActivityResult()
-//            // when it returns
-//            startActivityForResult(takePictureIntent, REQUEST_CODE_TAKE_FROM_CAMERA);
-//        } catch (ActivityNotFoundException e) {
-//            e.printStackTrace();
-//        }
-//        isTakenFromCamera = true;
+        // Construct temporary image path and name to save the taken photo
+        ContentValues values = new ContentValues(1);
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpg");
+        mUri = getActivity().getContentResolver().insert(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mUri);
+        takePictureIntent.putExtra("return-data", true);
 
         if (takePictureIntent.resolveActivity(getContext().getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            try {
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            } catch (ActivityNotFoundException e) {
+                e.printStackTrace();
+            }
+            isTakenFromCamera = true;
+//            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
         }
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            bitmap = (Bitmap) extras.get("data");
-            profilePhoto.setImageBitmap(bitmap);
+//        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+////            Crop.of(source, destination).asSquare().start(getActivity().getApplicationContext(),this);
+////            Bundle extras = data.getExtras();
+////            bitmap = (Bitmap) extras.get("data");
+//            Uri targetUri = data.getData();
+//            mUri = targetUri;
+//            Log.d("URI_Create", mUri.toString());
+//            profilePhoto.setImageBitmap(bitmap);
+//        }
+        if (resultCode != RESULT_OK)
+            return;
+
+        switch (requestCode) {
+            case REQUEST_IMAGE_CAPTURE:
+                // Send image taken from camera for cropping
+                beginCrop(mUri);
+                break;
+
+            case Crop.REQUEST_CROP: //We changed the RequestCode to the one being used by the library.
+                // Update image view after image crop
+                handleCrop(resultCode, data);
+
+                // Delete temporary image taken by camera after crop.
+                if (isTakenFromCamera) {
+                    File f = new File(mUri.getPath());
+                    if (f.exists())
+                        f.delete();
+                }
+
+                break;
         }
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        // save the bitmap
+        Log.d("STATE", "onSaveState");
+        outState.putParcelable("IMG", bitmap);
+        if (mUri != null) {
+            outState.putParcelable("uri", mUri);
+            Log.d("URI_Save", mUri.toString());
+        }
+
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Log.d("STATE", "onRestoreState");
+        if(savedInstanceState != null) {
+            if (mUri != null) {
+                mUri = savedInstanceState.getParcelable("uri");
+                profilePhoto.setImageURI(mUri);
+            }
+        }
+        else {
+            Log.d("EXCEPTION", "no saved instance");
+        }
+    }
 
     public void onSaveClicked(View v) {
-        Log.d("MAIN", "moved to onSaveClicked");
+        Log.d("STATE", "onSaveClicked");
         savePreferences();
         saveProfile();
 
         Toast.makeText(getActivity().getApplicationContext(), getString(R.string.profileSaveText),
                 Toast.LENGTH_SHORT).show();
 
-        // Close the activity
         getActivity().finish();
     }
 
@@ -280,29 +332,41 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
     }
 
     private void loadPreferences() {
-        Context context = getActivity();
-        SharedPreferences sp = context.getSharedPreferences(
+        SharedPreferences sp = getActivity().getSharedPreferences(
                 getString(R.string.saved_info), Context.MODE_PRIVATE);
-        Log.d("CHARNAME", sp.getString("character name", ""));
-        Log.d("FULLNAME", sp.getString("full name", ""));
-        Log.d("PASSWORD", sp.getString("password", ""));
-//
         charTxtEdit.setText(sp.getString("character name", ""));
         nameTxtEdit.setText(sp.getString("full name", ""));
         pwdTxtEdit.setText(sp.getString("password", ""));
-
     }
 
     private void savePreferences() {
-        Context context = getActivity();
-        SharedPreferences sp = context.getSharedPreferences(
+        SharedPreferences sp = getActivity().getSharedPreferences(
                 getString(R.string.saved_info), Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
 
+        SharedPreferences.Editor editor = sp.edit();
         editor.putString("character name", charTxtEdit.getText().toString());
         editor.putString("full name", nameTxtEdit.getText().toString());
         editor.putString("password", pwdTxtEdit.getText().toString());
+
         editor.commit();
+    }
+
+    /** Method to start Crop activity using the library
+     *	Earlier the code used to start a new intent to crop the image,
+     *	but here the library is handling the creation of an Intent, so you don't
+     * have to.
+     *  **/
+    private void beginCrop(Uri source) {
+        Uri destination = Uri.fromFile(new File(getActivity().getCacheDir(), "cropped"));
+        Crop.of(source, destination).asSquare().start(getActivity().getApplicationContext(),this);
+    }
+
+    private void handleCrop(int resultCode, Intent result) {
+        if (resultCode == RESULT_OK) {
+            profilePhoto.setImageURI(Crop.getOutput(result));
+        } else if (resultCode == Crop.RESULT_ERROR) {
+            Toast.makeText(getActivity().getApplicationContext(), Crop.getError(result).getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
 }
