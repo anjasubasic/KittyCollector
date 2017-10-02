@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
+import android.app.FragmentTransaction;
 import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Context;
@@ -42,7 +44,6 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
     private static final String URI_STATE_KEY = "saved_uri";
     private static final String PWD_STATE_KEY = "dialog_password";
     int requestCode = 123;
-
     private boolean passwordsMatch;
     private boolean inputValid;
     private String dialogPassword, fragmentPassword;
@@ -51,10 +52,11 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
     private Button clearButton, saveButton, profileButton;
     private Uri imageUri, croppedUri;
     private boolean isTakenFromCamera;
+    private Fragment fragment;
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable final Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.settings_fragment, container,false);
         ImageView check = view.findViewById(R.id.nameCheck);
         check.setImageResource(R.drawable.checkmark);
@@ -66,6 +68,7 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         clearButton = view.findViewById(R.id.clear_button);
         saveButton = view.findViewById(R.id.save_button);
         profileButton = view.findViewById(R.id.profile_button);
+        fragment = this;
 
         clearButton.setOnClickListener(
                 new View.OnClickListener() {
@@ -93,8 +96,6 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
             @Override
             public void onClick(View v) { onSaveClicked(); }
         });
-
-        final Fragment fragment = this;
 
         pwdTxtEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -194,14 +195,15 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
         Log.d("STATE", "onSaveState");
+
         if (croppedUri != null) {
             outState.putParcelable(URI_STATE_KEY, croppedUri);
         }
         if (dialogPassword != null) {
             outState.putString(PWD_STATE_KEY, dialogPassword);
         }
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -394,5 +396,4 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
                     Crop.getError(result).getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
-
 }

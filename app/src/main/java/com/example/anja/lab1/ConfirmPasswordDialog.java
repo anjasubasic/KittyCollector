@@ -1,9 +1,9 @@
 package com.example.anja.lab1;
 
-import android.app.Activity;
-import android.app.DialogFragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.Toast;
 
 public class ConfirmPasswordDialog extends android.support.v4.app.DialogFragment {
 
@@ -50,7 +49,6 @@ public class ConfirmPasswordDialog extends android.support.v4.app.DialogFragment
                     intent.putExtra("STRING_RESULT", charSequence.toString());
                     getTargetFragment().onActivityResult(getTargetRequestCode(), requestCode, intent);
                     dismiss();
-                    //Toast.makeText(getActivity(),"Passwords match", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -59,5 +57,18 @@ public class ConfirmPasswordDialog extends android.support.v4.app.DialogFragment
         });
 
         return view;
+    }
+
+    // Workaround for the SaveInstanceState support package bug. https://issuetracker.google.com/issues/36932872
+    @Override
+    public void show(FragmentManager manager, String tag) {
+
+        try {
+            FragmentTransaction ft = manager.beginTransaction();
+            ft.add(this, tag);
+            ft.commit();
+        } catch (IllegalStateException e) {
+            Log.d("ABSDIALOGFRAG", "Commiting after SavedInstanceState", e);
+        }
     }
 }
