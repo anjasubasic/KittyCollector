@@ -49,7 +49,7 @@ public class RegisterAccountFragment extends Fragment {
     private String dialogPassword, fragmentPassword;
     private ImageView profilePhoto;
     private EditText charTxtEdit, nameTxtEdit, pwdTxtEdit;
-    private Button clearButton, saveButton, profileButton;
+    private Button clearButton, saveButton, profileButton, haveAccountButton;
     private Uri imageUri, croppedUri;
     private boolean isTakenFromCamera;
     private Fragment fragment;
@@ -68,6 +68,7 @@ public class RegisterAccountFragment extends Fragment {
         clearButton = view.findViewById(R.id.clear_button);
         saveButton = view.findViewById(R.id.save_button);
         profileButton = view.findViewById(R.id.profile_button);
+        haveAccountButton = view.findViewById(R.id.have_account_button);
         fragment = this;
 
         clearButton.setOnClickListener(
@@ -90,6 +91,11 @@ public class RegisterAccountFragment extends Fragment {
         profileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) { onProfileClicked(); }
+        });
+
+        haveAccountButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { onHaveAccountClicked(); }
         });
 
         saveButton.setOnClickListener(new View.OnClickListener() {
@@ -118,6 +124,11 @@ public class RegisterAccountFragment extends Fragment {
         setClearButtonVisibility();
 
         return view;
+    }
+
+    private void onHaveAccountClicked() {
+        Intent intent = new Intent(getActivity(), LoginActivity.class);
+        getActivity().startActivity(intent);
     }
 
     // onProfileClicked: send image capture intent to the camera

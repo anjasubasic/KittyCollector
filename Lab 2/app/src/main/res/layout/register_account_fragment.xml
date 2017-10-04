@@ -27,6 +27,12 @@
                 android:text="@string/clearButton"
                 android:visibility="invisible">
             </Button>
+            <Button
+                android:id="@+id/have_account_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/haveAccountButton">
+            </Button>
         </LinearLayout>
 
         <!-- Character Name -->
