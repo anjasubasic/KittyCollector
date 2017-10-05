@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
-import android.app.FragmentTransaction;
+import java.util.Timer;
+import java.util.TimerTask;
 import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Context;
@@ -29,13 +29,23 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.soundcloud.android.crop.Crop;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by Anja on 9/24/2017.
  * Edited by Jenny 10/02/2017.
+ * Edited by Anja 10/05/2017.
  */
 
 public class RegisterAccountFragment extends Fragment {
@@ -47,7 +57,7 @@ public class RegisterAccountFragment extends Fragment {
     private boolean passwordsMatch;
     private boolean inputValid;
     private String dialogPassword, fragmentPassword;
-    private ImageView profilePhoto;
+    private ImageView profilePhoto, check;
     private EditText charTxtEdit, nameTxtEdit, pwdTxtEdit;
     private Button clearButton, saveButton, profileButton, haveAccountButton;
     private Uri imageUri, croppedUri;
@@ -58,8 +68,6 @@ public class RegisterAccountFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable final Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.register_account_fragment, container,false);
-        ImageView check = view.findViewById(R.id.nameCheck);
-        check.setImageResource(R.drawable.checkmark);
 
         profilePhoto = view.findViewById(R.id.imageProfile);
         charTxtEdit = view.findViewById(R.id.character_edit_text);
@@ -70,6 +78,9 @@ public class RegisterAccountFragment extends Fragment {
         profileButton = view.findViewById(R.id.profile_button);
         haveAccountButton = view.findViewById(R.id.have_account_button);
         fragment = this;
+        check = view.findViewById(R.id.nameCheck);
+        check.setImageResource(R.drawable.checkmark);
+
 
         clearButton.setOnClickListener(
                 new View.OnClickListener() {
@@ -115,6 +126,15 @@ public class RegisterAccountFragment extends Fragment {
                     myDialog.setTargetFragment(fragment, requestCode);
                     myDialog.show(manager, "ConfirmPasswordDialog");
                 }
+            }
+        });
+
+        charTxtEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            //String username =
+
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+
             }
         });
 
@@ -251,8 +271,11 @@ public class RegisterAccountFragment extends Fragment {
     }
 
     private void setClearButtonVisibility() {
-        //TODO: We should clean this up if we can. I didn't know how to create a TextWatcher for multiple EditTexts so I just left it like this for now.
         charTxtEdit.addTextChangedListener(new TextWatcher() {
+
+            private Timer timer = new Timer();
+            private final long DELAY = 500;
+
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
 
@@ -268,8 +291,32 @@ public class RegisterAccountFragment extends Fragment {
             }
 
             @Override
-            public void afterTextChanged(Editable editable) { }
+            public void afterTextChanged(Editable editable) {
+                final String username = charTxtEdit.getText().toString();
+
+                if (username.length() == 0) {
+                    check.setVisibility(View.INVISIBLE);
+                }
+                // Got timer stuff from:
+                // https://stackoverflow.com/questions/12142021/how-can-i-do-something-0-5-second-after-text-changed-in-my-edittext
+
+                timer.cancel();
+                timer = new Timer();
+                timer.schedule(
+                        new TimerTask() {
+                            @Override
+                            public void run() {
+                                if(username.length() > 0) {
+                                    // only check if available if the user typed something
+                                    checkUsernameAvailability(username);
+                                }
+                            }
+                        },
+                        DELAY
+                );
+            }
         });
+
 
         nameTxtEdit.addTextChangedListener(new TextWatcher() {
             @Override
@@ -320,6 +367,47 @@ public class RegisterAccountFragment extends Fragment {
             public void afterTextChanged(Editable editable) {}
 
         });
+    }
+
+    private void checkUsernameAvailability(String username) {
+        RequestQueue queue = Volley.newRequestQueue(this.getContext());
+        String url ="http://cs65.cs.dartmouth.edu/nametest.pl?name=";
+            JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                    (Request.Method.GET, url + username, null, new Response.Listener<JSONObject>() {
+
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            setUsernameStatus(response);
+                        }
+                    }, new Response.ErrorListener() {
+
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            //TODO: what's the proper way to handle this?
+                        }
+                    });
+            queue.add(jsObjRequest);
+    }
+
+    private void setUsernameStatus(JSONObject response) {
+
+        try {
+            if (response != null) {
+                String avail = response.getString("avail");
+
+                check.setVisibility(View.VISIBLE);
+
+                if (avail.equals("true"))
+                    check.setImageResource(R.drawable.checkmark);
+                else
+                    check.setImageResource(R.drawable.cross);
+            }
+        }
+
+        catch (JSONException e){
+            Toast.makeText(getActivity().getApplicationContext(),
+                    "Unable to parse response", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void checkInput() {
