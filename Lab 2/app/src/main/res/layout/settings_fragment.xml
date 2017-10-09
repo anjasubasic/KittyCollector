@@ -87,11 +87,14 @@
                 android:text="@string/preferencesPartLabel" />
 
             <LinearLayout
+                android:background="@drawable/selector"
                 android:id="@+id/aboutSettings"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="15dp">
+                android:padding="15dp"
+                android:clickable="true"
+                android:focusable="true">
 
                 <TextView
                     style="@style/SettingsTitle"
@@ -109,6 +112,7 @@
             <View style="@style/Divider" />
 
             <LinearLayout
+                android:background="@drawable/selector"
                 android:id="@+id/alertSettings"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

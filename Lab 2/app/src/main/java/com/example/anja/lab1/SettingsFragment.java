@@ -109,23 +109,23 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         }
     }
 
-    // OnSignOutClicked: Close main activity, clear backstack and restart the login activity
+    // OnSignOutClicked: Close main activity, clear back stack and restart the login activity
     private void onSignOutClicked() {
         Log.d("STATE", "onSignOutClicked");
         Intent intent = new Intent(getActivity(), LoginActivity.class);
+        // Clearing back stack code referenced from
+        // https://stackoverflow.com/questions/5794506/android-clear-the-back-stack
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         getActivity().finish();
     }
 
     private void onAboutClicked() {
-        // TODO: Need to make it show that it was clicked!
         // TODO: Lead to different page
         Log.d("STATE", "onAboutClicked");
     }
 
     private void onAlertClicked() {
-        // TODO: Need to make it show that it was clicked!
         // TODO: Lead to different page
         Log.d("STATE", "onAlertClicked");
     }
