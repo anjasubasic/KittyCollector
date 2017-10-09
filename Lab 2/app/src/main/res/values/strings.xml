@@ -28,6 +28,18 @@
     <string name="login_button">Login</string>
     <string name="new_account">Create a New Account</string>
 
+    <!-- Preferences tab settings -->
+    <string name="profilePartLabel">Profile</string>
+    <string name="fullnamePlaceholder">Full Name</string>
+    <string name="usernamePlaceholder">"@username"</string>
+    <string name="signOutButton">Sign Out</string>
+    <string name="preferencesPartLabel">Preferences</string>
+    <string name="aboutLabel">About</string>
+    <string name="aboutDescription">Edit your profile</string>
+    <string name="alertLabel">Alert</string>
+    <string name="alertDescription">Vibration, notification, sound settings</string>
+    <string name="privacyLabel">Privacy</string>
+    <string name="privacyDescription">Make profile publicly visible</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
