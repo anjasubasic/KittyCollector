@@ -79,7 +79,6 @@ public class RegisterAccountFragment extends Fragment {
         haveAccountButton = view.findViewById(R.id.have_account_button);
         fragment = this;
         check = view.findViewById(R.id.nameCheck);
-        check.setImageResource(R.drawable.checkmark);
 
 
         clearButton.setOnClickListener(
@@ -188,7 +187,7 @@ public class RegisterAccountFragment extends Fragment {
 
         Intent intent = new Intent(getActivity(), MainActivity.class);
         getActivity().startActivity(intent);
-
+        Log.d("ACTIVITY", getActivity().toString());
         getActivity().finish();
     }
 
@@ -197,7 +196,9 @@ public class RegisterAccountFragment extends Fragment {
 
         // for handing the password check
         String dialogPassword = ConfirmPasswordDialog.dialogPassword;
-        if (requestCode == ConfirmPasswordDialog.requestCode && fragmentPassword.equals(dialogPassword)) {
+        fragmentPassword = pwdTxtEdit.getText().toString();
+        if (requestCode == ConfirmPasswordDialog.requestCode
+                && fragmentPassword.equals(dialogPassword)) {
             Toast.makeText(getActivity(), R.string.password_status, Toast.LENGTH_SHORT).show();
             this.dialogPassword = dialogPassword;
             passwordsMatch = true;
