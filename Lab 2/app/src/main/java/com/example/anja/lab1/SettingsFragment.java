@@ -1,5 +1,10 @@
 package com.example.anja.lab1;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -12,6 +17,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by Anja on 9/24/2017.
@@ -69,15 +80,42 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
     }
 
     private void setProfile() {
-        // TODO: Pull data from sign-in request
-        profilePhoto.setImageResource(R.drawable.shiba);
-        fullname.setText("Jane Doe");
-        username.setText("@jane");
+        loadProfile();
+        loadPreferences();
     }
 
+    private void loadProfile() {
+        try {
+            FileInputStream inputImage = getContext().openFileInput(getString(R.string.profileFileName));
+            Bitmap profile = BitmapFactory.decodeStream(inputImage);
+            profilePhoto.setImageBitmap(profile);
+            inputImage.close();
+        }
+        // get default profile photo if photo file not found
+        catch (IOException e) {
+            profilePhoto.setImageResource(R.drawable.shiba);
+        }
+    }
+
+    private void loadPreferences() {
+        SharedPreferences sp = getActivity().getSharedPreferences(
+                getString(R.string.saved_info), Context.MODE_PRIVATE);
+        username.setText(sp.getString("character name", ""));
+        fullname.setText(sp.getString("full name", ""));
+
+        if (sp != null) {
+            fullname.setText("Jane Doe");
+            username.setText("@jane");
+        }
+    }
+
+    // OnSignOutClicked: Close main activity, clear backstack and restart the login activity
     private void onSignOutClicked() {
-        // TODO: Link sign out feature
         Log.d("STATE", "onSignOutClicked");
+        Intent intent = new Intent(getActivity(), LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        getActivity().finish();
     }
 
     private void onAboutClicked() {
