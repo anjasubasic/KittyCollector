@@ -65,7 +65,7 @@ public class RegisterAccountFragment extends Fragment {
     private boolean passwordsMatch;
     private boolean inputValid;
     private String dialogPassword, fragmentPassword;
-    private ImageView profilePhoto, check;
+    private ImageView profilePhoto, check, pwdCheck;
     private EditText charTxtEdit, nameTxtEdit, pwdTxtEdit;
     private Button clearButton, saveButton, profileButton, haveAccountButton;
     private Uri imageUri, croppedUri;
@@ -86,6 +86,7 @@ public class RegisterAccountFragment extends Fragment {
         profileButton = view.findViewById(R.id.profile_button);
         haveAccountButton = view.findViewById(R.id.have_account_button);
         check = view.findViewById(R.id.nameCheck);
+        pwdCheck = view.findViewById(R.id.pwdCheck);
         fragment = this;
 
         clearButton.setOnClickListener(
@@ -127,6 +128,7 @@ public class RegisterAccountFragment extends Fragment {
 
                 // only show dialog if the user has typed in a password
                 if (!hasFocus && password.length() != 0) {
+                    pwdCheck.setImageResource(R.drawable.cross);
                     FragmentManager manager = getFragmentManager();
                     ConfirmPasswordDialog myDialog = ConfirmPasswordDialog.newInstance(password);
                     myDialog.setTargetFragment(fragment, requestCode);
@@ -190,19 +192,81 @@ public class RegisterAccountFragment extends Fragment {
         // TODO: Fix - Clicking the back button from here closes the app.
     }
 
+    public void postUserInfo() {
+        TextView status = getActivity().findViewById(R.id.loginStatus);
+        String url = "http://cs65.cs.dartmouth.edu/profile.pl";
+        RequestQueue queue = Volley.newRequestQueue(this.getContext());
+        JSONObject userInfo = buildJSONObject();
+        checkUsernameAvailability(charTxtEdit.getText().toString());
+
+        if (userInfo == null) { return; }
+        else if (available == false) {
+            Toast.makeText(getActivity().getApplicationContext(), getString(R.string.notAvailableText),
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+        else {
+            // Request a string response from the provided URL.
+            JsonObjectRequest joRequest = new JsonObjectRequest(url,  // POST is presumed
+                    userInfo,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            postResultsToUI(response.toString());
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    postResultsToUI("Error" + error.toString());
+                }
+            }) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    {
+                        Map<String, String> params = new HashMap<String, String>();
+                        // params.put("Accept", "application/json");
+                        params.put("Accept-Encoding", "identity");
+                        // params.put("Content-Type", "application/json");
+
+                        return params;
+                    }
+                }
+            };
+            queue.add(joRequest);
+        }
+        // TODO: better handling of POST result --> Wait for posting result (for image)
+
+        // save entered user information and move to main activity
+        savePreferences();
+        saveProfile();
+        // Get username and password from activity start intent
+        // https://stackoverflow.com/questions/2405120/how-to-start-an-intent-by-passing-some-parameters-to-it
+        Intent intent = new Intent(getActivity(), MainActivity.class);
+        intent.putExtra("username",charTxtEdit.getText().toString());
+        intent.putExtra("password",pwdTxtEdit.getText().toString());
+        getActivity().startActivity(intent);
+        getActivity().finish();
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         // for handing the password check
         String dialogPassword = ConfirmPasswordDialog.dialogPassword;
         fragmentPassword = pwdTxtEdit.getText().toString();
-        if (requestCode == ConfirmPasswordDialog.requestCode
-                && fragmentPassword.equals(dialogPassword)) {
-            Toast.makeText(getActivity(), R.string.password_status, Toast.LENGTH_SHORT).show();
-            this.dialogPassword = dialogPassword;
-            passwordsMatch = true;
-            setSaveButtonEnabled();
+
+        if (requestCode == ConfirmPasswordDialog.requestCode) {
+            check.setVisibility(View.VISIBLE);
+            if (fragmentPassword.equals(dialogPassword)) {
+                Toast.makeText(getActivity(), R.string.password_status, Toast.LENGTH_SHORT).show();
+                this.dialogPassword = dialogPassword;
+                passwordsMatch = true;
+                pwdCheck.setImageResource(R.drawable.checkmark);
+            } else {
+                passwordsMatch = false;
+            }
         }
+
         else if (resultCode != RESULT_OK)
             return;
 
@@ -226,7 +290,6 @@ public class RegisterAccountFragment extends Fragment {
                     if (f.exists())
                         f.delete();
                 }
-
                 break;
         }
     }
@@ -263,7 +326,8 @@ public class RegisterAccountFragment extends Fragment {
     // **---------- private helper functions ----------**
 
     private void setSaveButtonEnabled() {
-        if (passwordsMatch && inputValid ) {
+        Log.d("USERNAME", Boolean.toString(available));
+        if (passwordsMatch && inputValid && available) {
             saveButton.setEnabled(true);
         } else {
             saveButton.setEnabled(false);
@@ -355,7 +419,6 @@ public class RegisterAccountFragment extends Fragment {
                     if (dialogPassword.equals(fragmentPassword)) {
                         passwordsMatch = true;
                     }
-
                     else {
                         passwordsMatch = false;
                     }
@@ -365,7 +428,8 @@ public class RegisterAccountFragment extends Fragment {
             }
 
             @Override
-            public void afterTextChanged(Editable editable) {}
+            public void afterTextChanged(Editable editable) {
+            }
 
         });
     }
@@ -401,10 +465,12 @@ public class RegisterAccountFragment extends Fragment {
                 if (avail.equals("true")) {
                     check.setImageResource(R.drawable.checkmark);
                     available = true;
+                    setSaveButtonEnabled();
                 }
                 else {
                     check.setImageResource(R.drawable.cross);
                     available = false;
+                    setSaveButtonEnabled();
                 }
             }
         }
@@ -413,62 +479,6 @@ public class RegisterAccountFragment extends Fragment {
             Toast.makeText(getActivity().getApplicationContext(),
                     "Unable to parse response", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    public void postUserInfo() {
-        TextView status = getActivity().findViewById(R.id.loginStatus);
-        String url = "http://cs65.cs.dartmouth.edu/profile.pl";
-        RequestQueue queue = Volley.newRequestQueue(this.getContext());
-        JSONObject userInfo = buildJSONObject();
-        checkUsernameAvailability(charTxtEdit.getText().toString());
-
-        if (userInfo == null) { return; }
-        else if (available == false) {
-            Toast.makeText(getActivity().getApplicationContext(), getString(R.string.notAvailableText),
-                    Toast.LENGTH_SHORT).show();
-            return;
-        }
-        else {
-            // Request a string response from the provided URL.
-            JsonObjectRequest joRequest = new JsonObjectRequest(url,  // POST is presumed
-                    userInfo,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            postResultsToUI(response.toString());
-                        }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    postResultsToUI("Error" + error.toString());
-                }
-            }) {
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    {
-                        Map<String, String> params = new HashMap<String, String>();
-                        // params.put("Accept", "application/json");
-                        params.put("Accept-Encoding", "identity");
-                        // params.put("Content-Type", "application/json");
-
-                        return params;
-                    }
-                }
-            };
-            queue.add(joRequest);
-        }
-        // TODO: better handling of POST result --> Wait for posting result
-
-        // save entered user information and move to main activity
-        savePreferences();
-        saveProfile();
-        // Get username and password from activity start intent
-        // https://stackoverflow.com/questions/2405120/how-to-start-an-intent-by-passing-some-parameters-to-it
-        Intent intent = new Intent(getActivity(), MainActivity.class);
-        intent.putExtra("username",charTxtEdit.getText().toString());
-        intent.putExtra("password",pwdTxtEdit.getText().toString());
-        getActivity().startActivity(intent);
-        getActivity().finish();
     }
 
     private void checkInput() {
@@ -517,6 +527,11 @@ public class RegisterAccountFragment extends Fragment {
         profilePhoto.buildDrawingCache();
         Bitmap profile = profilePhoto.getDrawingCache();
         String image = getStringFromBitmap(profile);
+        if (charTxtEdit.getText().toString() == null || pwdTxtEdit.getText().toString() == null) {
+            Toast.makeText(getActivity().getApplicationContext(),
+                    getString(R.string.invalidCreateMessage), Toast.LENGTH_LONG).show();
+            return null;
+        }
         try {
             json.put("name", charTxtEdit.getText().toString());
             json.put( "password", pwdTxtEdit.getText().toString());
@@ -568,6 +583,7 @@ public class RegisterAccountFragment extends Fragment {
         editor.putBoolean("passwords match", passwordsMatch);
         editor.putString("dialog password", dialogPassword);
         editor.putBoolean("login", true);
+        editor.putBoolean("remember", true);
 
         editor.commit();
     }

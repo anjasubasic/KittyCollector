@@ -57,7 +57,7 @@
             <ImageView
                 android:id="@+id/nameCheck"
                 android:layout_width="30dp"
-                android:layout_height="28dp"
+                android:layout_height="30dp"
                 android:layout_gravity="center"
                 android:layout_marginStart="20dp" />
 
@@ -89,12 +89,24 @@
             android:layout_height="wrap_content"
             android:text="@string/passwordLabel"
             android:layout_marginVertical="5dp"/>
-        <EditText
-            android:id="@+id/password_edit_text"
-            android:inputType="textPassword"
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="5dp" />
+            android:layout_height="wrap_content">
+            <EditText
+                android:id="@+id/password_edit_text"
+                android:inputType="textPassword"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:layout_marginVertical="5dp" />
+            <ImageView
+                android:id="@+id/pwdCheck"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="20dp"/>
+        </LinearLayout>>
 
         <!-- Picture -->
         <TextView

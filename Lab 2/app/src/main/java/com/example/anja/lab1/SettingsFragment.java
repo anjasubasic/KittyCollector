@@ -133,7 +133,10 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         Log.d("STATE", "onSignOutClicked");
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         SharedPreferences.Editor editor = sp.edit();
-        if(!sp.getBoolean("remember", false)) { editor.clear(); }
+        if(!sp.getBoolean("remember", false)) {
+            editor.clear();
+            getContext().deleteFile(getString(R.string.profileFileName));
+        }
         editor.putBoolean("login", false);
         editor.commit();
 
