@@ -1,5 +1,6 @@
 package com.example.anja.lab1;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -24,6 +25,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,8 +52,8 @@ import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by Anja on 9/24/2017.
- * Edited by Jenny 10/02/2017.
  * Edited by Anja 10/05/2017.
+ * Edited by Jenny 10/10/2017.
  */
 
 public class RegisterAccountFragment extends Fragment {
@@ -142,8 +144,9 @@ public class RegisterAccountFragment extends Fragment {
             }
         });
 
-        loadProfile();
-        loadPreferences();
+//        loadProfile();
+//        loadPreferences();                NOTE: no need to load previous data anymore
+        profilePhoto.setImageResource(R.drawable.shiba);
         setSaveButtonEnabled();
         setClearButtonVisibility();
 
@@ -314,7 +317,6 @@ public class RegisterAccountFragment extends Fragment {
             }
         });
 
-
         nameTxtEdit.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
@@ -349,12 +351,14 @@ public class RegisterAccountFragment extends Fragment {
                     inputValid = false;
                 }
 
-                if (dialogPassword.equals(fragmentPassword)) {
-                    passwordsMatch = true;
-                }
+                if (dialogPassword != null ) {
+                    if (dialogPassword.equals(fragmentPassword)) {
+                        passwordsMatch = true;
+                    }
 
-                else {
-                    passwordsMatch = false;
+                    else {
+                        passwordsMatch = false;
+                    }
                 }
 
                 setSaveButtonEnabled();
@@ -453,9 +457,9 @@ public class RegisterAccountFragment extends Fragment {
             };
             queue.add(joRequest);
         }
+        // TODO: better handling of POST result --> Wait for posting result
 
         // save entered user information and move to main activity
-        // TODO: better handling of POST result
         savePreferences();
         saveProfile();
         // Get username and password from activity start intent
@@ -510,10 +514,14 @@ public class RegisterAccountFragment extends Fragment {
 
     private JSONObject buildJSONObject(){
         JSONObject json = new JSONObject();
+        profilePhoto.buildDrawingCache();
+        Bitmap profile = profilePhoto.getDrawingCache();
+        String image = getStringFromBitmap(profile);
         try {
             json.put("name", charTxtEdit.getText().toString());
             json.put( "password", pwdTxtEdit.getText().toString());
             json.put("fullname", nameTxtEdit.getText().toString());
+//            json.put("profile", image);
         }
         catch(JSONException e){
             Log.d("JSON", "Invalid JSON: " + e.toString());
@@ -525,6 +533,19 @@ public class RegisterAccountFragment extends Fragment {
         return json;
     }
 
+    // converting bitmap to string code taken from
+    // http://mobile.cs.fsu.edu/converting-images-to-json-objects/
+    private String getStringFromBitmap(Bitmap bitmapPicture) {
+        final int COMPRESSION_QUALITY = 100;
+        String encodedImage;
+        ByteArrayOutputStream byteArrayBitmapStream = new ByteArrayOutputStream();
+        bitmapPicture.compress(Bitmap.CompressFormat.PNG, COMPRESSION_QUALITY,
+                byteArrayBitmapStream);
+        byte[] b = byteArrayBitmapStream.toByteArray();
+        encodedImage = Base64.encodeToString(b, Base64.DEFAULT);
+        return encodedImage;
+    }
+
     private void postResultsToUI(final String res) {
         TextView tv = getActivity().findViewById(R.id.loginStatus);
         if (res == null)
@@ -533,28 +554,12 @@ public class RegisterAccountFragment extends Fragment {
             tv.setText(res);
     }
 
-    private void loadPreferences() {
-        SharedPreferences sp = getActivity().getSharedPreferences(
-                getString(R.string.saved_info), Context.MODE_PRIVATE);
-        charTxtEdit.setText(sp.getString("character name", ""));
-        nameTxtEdit.setText(sp.getString("full name", ""));
-        pwdTxtEdit.setText(sp.getString("password", ""));
-        inputValid = sp.getBoolean("input valid", false);
-        passwordsMatch = sp.getBoolean("passwords match", false);
-        dialogPassword = sp.getString("dialog password", "");
-
-        if (sp != null) {
-            clearButton.setVisibility(View.VISIBLE);
-        }
-    }
-
     private void savePreferences() {
         // Using shared preferences throughout the activities
         // https://stackoverflow.com/questions/22138389/using-shared-preferences-in-between-activities
-//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        SharedPreferences sp = getActivity().getSharedPreferences(
-                getString(R.string.saved_info), Context.MODE_PRIVATE);
-
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+//        SharedPreferences sp = getActivity().getSharedPreferences(
+//                getString(R.string.saved_info), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
         editor.putString("character name", charTxtEdit.getText().toString());
         editor.putString("full name", nameTxtEdit.getText().toString());
@@ -562,6 +567,7 @@ public class RegisterAccountFragment extends Fragment {
         editor.putBoolean("input valid", inputValid);
         editor.putBoolean("passwords match", passwordsMatch);
         editor.putString("dialog password", dialogPassword);
+        editor.putBoolean("login", true);
 
         editor.commit();
     }

@@ -7,13 +7,14 @@
     <string name="settings_tab">Settings</string>
     <string name="action_settings">Settings</string>
 
-    <!-- Settings tab strings -->
+    <!-- Create page strings -->
     <string name="haveAccountButton">I already have an account</string>
     <string name="clearButton">Clear</string>
     <string name="charNameLabel">Username:</string>
     <string name="availableLabel">Available?</string>
     <string name="fullNameLabel">Full name (private, not listed):</string>
     <string name="passwordLabel">Choose a password:</string>
+    <string name="pwdMatchLabel">Confirmed?</string>
     <string name="pictureLabel">Share your picture (optional):</string>
     <string name="saveButton">Save</string>
     <string name="confirmPassword">Retype your password to confirm:</string>
@@ -26,9 +27,10 @@
     <!-- Login Screen Strings -->
     <string name="password_label">Password:</string>
     <string name="login_button">Login</string>
+    <string name="remember">Remember Me</string>
     <string name="new_account">Create a New Account</string>
 
-    <!-- Preferences tab settings -->
+    <!-- Settings tab settings -->
     <string name="profilePartLabel">Profile</string>
     <string name="fullnamePlaceholder">Full Name</string>
     <string name="usernamePlaceholder">"@username"</string>

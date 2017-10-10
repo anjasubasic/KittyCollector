@@ -24,12 +24,14 @@
                 android:layout_gravity="center_horizontal"
                 android:gravity="center">
 
-                <!-- add a header image here later -->
                 <ImageView
                     android:id="@+id/imageProfile"
-                    android:layout_width="wrap_content"
-                    android:layout_height="130dp"
-                    android:layout_margin="10dp"/>
+                    android:layout_width="400dp"
+                    android:layout_height="200dp"
+                    android:background="@drawable/banner"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp"
+                    />
 
             </RelativeLayout>
 
@@ -41,6 +43,7 @@
                 android:text="@string/charNameLabel"/>
 
             <EditText
+                android:id="@+id/username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="10dp"
@@ -54,11 +57,19 @@
                 android:text="@string/password_label"/>
 
             <EditText
+                android:id="@+id/password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
                 android:layout_marginVertical="10dp"
                 android:layout_marginHorizontal="20dp"/>
+
+            <CheckBox
+                android:id="@+id/remember"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/remember"
+                android:layout_margin="20dp"/>
 
             <RelativeLayout
                 android:layout_width="wrap_content"
@@ -70,20 +81,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/login_button"
-                    android:layout_margin="20dp"/>
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_margin="0dp">
-
-                <TextView
-                    android:id="@+id/status"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=""/>
+                    android:layout_margin="10dp"/>
             </RelativeLayout>
 
             <RelativeLayout

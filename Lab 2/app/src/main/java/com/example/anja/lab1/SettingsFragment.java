@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,7 +36,7 @@ import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by Anja on 9/24/2017.
- * Edited by Jenny 10/02/2017.
+ * Edited by Jenny 10/10/2017.
  */
 
 public class SettingsFragment extends android.support.v4.app.DialogFragment {
@@ -44,12 +45,6 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
     private Button signOutButton;
     private LinearLayout about, alert;
     private Switch privacy;
-
-    // Get username and password from activity start intent
-    // https://stackoverflow.com/questions/2405120/how-to-start-an-intent-by-passing-some-parameters-to-it
-//    Intent myIntent = getActivity().getIntent();
-//    String username = myIntent.getStringExtra("username");
-//    String password= myIntent.getStringExtra("password");
 
     @Nullable
     @Override
@@ -100,6 +95,7 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
     }
 
     private void loadProfilePic() {
+        // TODO: load profile from image fetched from server
         try {
             FileInputStream inputImage = getContext().openFileInput(getString(R.string.profileFileName));
             Bitmap profile = BitmapFactory.decodeStream(inputImage);
@@ -113,32 +109,20 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
     }
 
     private void loadUserInfo() {
-        SharedPreferences sp = getActivity().getSharedPreferences(
-                getString(R.string.saved_info), Context.MODE_PRIVATE);
-        String username = sp.getString("character name", "");
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String fullname = sp.getString("full name", "");
+        String username = "@" + sp.getString("character name", "");
         fullnameTxt.setText(fullname);
         usernameTxt.setText(username);
 
-//        RequestQueue queue = Volley.newRequestQueue(this.getContext());
-//        String url ="http://cs65.cs.dartmouth.edu/nametest.pl?";
-//        JsonObjectRequest jsObjRequest = new JsonObjectRequest
-//                (Request.Method.GET, url + username + "&" + password, null, new Response.Listener<JSONObject>() {
-//
-//                    @Override
-//                    public void onResponse(JSONObject response) {
-//                    // get stuff
-//                    }
-//                }, new Response.ErrorListener() {
-//
-//                    @Override
-//                    public void onErrorResponse(VolleyError error) {
-//                        //TODO: what's the proper way to handle this?
-//                    }
-//                });
-//        queue.add(jsObjRequest);
+        // TODO: Get user information from server
+        // Get username and password from activity start intent
+        // https://stackoverflow.com/questions/2405120/how-to-start-an-intent-by-passing-some-parameters-to-it
+//        Intent myIntent = getActivity().getIntent();
+//        String username = myIntent.getStringExtra("username");
+//        String password= myIntent.getStringExtra("password");
 
-        if (sp != null) {
+        if (sp == null) {
             fullnameTxt.setText("Jane Doe");
             usernameTxt.setText("@jane");
         }
@@ -147,6 +131,12 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
     // OnSignOutClicked: Close main activity, clear back stack and restart the login activity
     private void onSignOutClicked() {
         Log.d("STATE", "onSignOutClicked");
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        SharedPreferences.Editor editor = sp.edit();
+        if(!sp.getBoolean("remember", false)) { editor.clear(); }
+        editor.putBoolean("login", false);
+        editor.commit();
+
         Intent intent = new Intent(getActivity(), LoginActivity.class);
         // Clearing back stack code referenced from
         // https://stackoverflow.com/questions/5794506/android-clear-the-back-stack
@@ -156,7 +146,7 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
     }
 
     private void onAboutClicked() {
-        // TODO: Lead to different page
+        // TODO: Lead to profile editing page
         Log.d("STATE", "onAboutClicked");
     }
 
