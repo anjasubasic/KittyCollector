@@ -102,6 +102,7 @@ public class RegisterAccountFragment extends Fragment {
                         saveButton.setEnabled(false);
                         passwordsMatch = false;
                         clearButton.setVisibility(View.INVISIBLE);
+                        pwdCheck.setVisibility(View.INVISIBLE);
                         croppedUri = null;
                     }
                 });
@@ -256,7 +257,7 @@ public class RegisterAccountFragment extends Fragment {
         fragmentPassword = pwdTxtEdit.getText().toString();
 
         if (requestCode == ConfirmPasswordDialog.requestCode) {
-            check.setVisibility(View.VISIBLE);
+            pwdCheck.setVisibility(View.VISIBLE);
             if (fragmentPassword.equals(dialogPassword)) {
                 Toast.makeText(getActivity(), R.string.password_status, Toast.LENGTH_SHORT).show();
                 this.dialogPassword = dialogPassword;
@@ -265,6 +266,7 @@ public class RegisterAccountFragment extends Fragment {
             } else {
                 passwordsMatch = false;
             }
+            setSaveButtonEnabled();
         }
 
         else if (resultCode != RESULT_OK)
@@ -327,6 +329,8 @@ public class RegisterAccountFragment extends Fragment {
 
     private void setSaveButtonEnabled() {
         Log.d("USERNAME", Boolean.toString(available));
+        Log.d("PWDMATCH", Boolean.toString(passwordsMatch));
+        Log.d("INPUTVALID", Boolean.toString(inputValid));
         if (passwordsMatch && inputValid && available) {
             saveButton.setEnabled(true);
         } else {
@@ -562,6 +566,7 @@ public class RegisterAccountFragment extends Fragment {
     }
 
     private void postResultsToUI(final String res) {
+        // TODO: change to Toasts
         TextView tv = getActivity().findViewById(R.id.loginStatus);
         if (res == null)
             tv.setText("Connection failed");
