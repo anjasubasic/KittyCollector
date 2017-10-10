@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import android.content.ActivityNotFoundException;
@@ -15,6 +17,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -28,7 +31,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -62,13 +68,13 @@ public class RegisterAccountFragment extends Fragment {
     private Button clearButton, saveButton, profileButton, haveAccountButton;
     private Uri imageUri, croppedUri;
     private boolean isTakenFromCamera;
+    boolean available = false;
     private Fragment fragment;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable final Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.register_account_fragment, container,false);
-
         profilePhoto = view.findViewById(R.id.imageProfile);
         charTxtEdit = view.findViewById(R.id.character_edit_text);
         nameTxtEdit = view.findViewById(R.id.name_edit_text);
@@ -77,9 +83,8 @@ public class RegisterAccountFragment extends Fragment {
         saveButton = view.findViewById(R.id.save_button);
         profileButton = view.findViewById(R.id.profile_button);
         haveAccountButton = view.findViewById(R.id.have_account_button);
-        fragment = this;
         check = view.findViewById(R.id.nameCheck);
-
+        fragment = this;
 
         clearButton.setOnClickListener(
                 new View.OnClickListener() {
@@ -177,18 +182,9 @@ public class RegisterAccountFragment extends Fragment {
     // onSaveClicked: save data to sharedPreferences and close application
     public void onSaveClicked() {
         Log.d("STATE", "onSaveClicked");
-        savePreferences();
-        saveProfile();
-        Toast.makeText(getActivity().getApplicationContext(), getString(R.string.profileSaveText),
-                Toast.LENGTH_SHORT).show();
-
+        postUserInfo();
         // Supposed to automatically log the user in and take them to the main activity.
         // TODO: Fix - Clicking the back button from here closes the app.
-
-        Intent intent = new Intent(getActivity(), MainActivity.class);
-        getActivity().startActivity(intent);
-        Log.d("ACTIVITY", getActivity().toString());
-        getActivity().finish();
     }
 
     @Override
@@ -398,10 +394,14 @@ public class RegisterAccountFragment extends Fragment {
 
                 check.setVisibility(View.VISIBLE);
 
-                if (avail.equals("true"))
+                if (avail.equals("true")) {
                     check.setImageResource(R.drawable.checkmark);
-                else
+                    available = true;
+                }
+                else {
                     check.setImageResource(R.drawable.cross);
+                    available = false;
+                }
             }
         }
 
@@ -409,6 +409,62 @@ public class RegisterAccountFragment extends Fragment {
             Toast.makeText(getActivity().getApplicationContext(),
                     "Unable to parse response", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void postUserInfo() {
+        TextView status = getActivity().findViewById(R.id.loginStatus);
+        String url = "http://cs65.cs.dartmouth.edu/profile.pl";
+        RequestQueue queue = Volley.newRequestQueue(this.getContext());
+        JSONObject userInfo = buildJSONObject();
+        checkUsernameAvailability(charTxtEdit.getText().toString());
+
+        if (userInfo == null) { return; }
+        else if (available == false) {
+            Toast.makeText(getActivity().getApplicationContext(), getString(R.string.notAvailableText),
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+        else {
+            // Request a string response from the provided URL.
+            JsonObjectRequest joRequest = new JsonObjectRequest(url,  // POST is presumed
+                    userInfo,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            postResultsToUI(response.toString());
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    postResultsToUI("Error" + error.toString());
+                }
+            }) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    {
+                        Map<String, String> params = new HashMap<String, String>();
+                        // params.put("Accept", "application/json");
+                        params.put("Accept-Encoding", "identity");
+                        // params.put("Content-Type", "application/json");
+
+                        return params;
+                    }
+                }
+            };
+            queue.add(joRequest);
+        }
+
+        // save entered user information and move to main activity
+        // TODO: better handling of POST result
+        savePreferences();
+        saveProfile();
+        // Get username and password from activity start intent
+        // https://stackoverflow.com/questions/2405120/how-to-start-an-intent-by-passing-some-parameters-to-it
+        Intent intent = new Intent(getActivity(), MainActivity.class);
+        intent.putExtra("username",charTxtEdit.getText().toString());
+        intent.putExtra("password",pwdTxtEdit.getText().toString());
+        getActivity().startActivity(intent);
+        getActivity().finish();
     }
 
     private void checkInput() {
@@ -445,9 +501,36 @@ public class RegisterAccountFragment extends Fragment {
             profile.compress(Bitmap.CompressFormat.PNG, 100, fos);
             fos.flush();
             fos.close();
+            Toast.makeText(getActivity().getApplicationContext(), getString(R.string.profileSaveText),
+                    Toast.LENGTH_SHORT).show();
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
+    }
+
+    private JSONObject buildJSONObject(){
+        JSONObject json = new JSONObject();
+        try {
+            json.put("name", charTxtEdit.getText().toString());
+            json.put( "password", pwdTxtEdit.getText().toString());
+            json.put("fullname", nameTxtEdit.getText().toString());
+        }
+        catch(JSONException e){
+            Log.d("JSON", "Invalid JSON: " + e.toString());
+            Toast.makeText(getActivity().getApplicationContext(),
+                    "Invalid JSON" + e.toString(), Toast.LENGTH_LONG).show();
+            return null;
+        }
+        Log.d("JSON", json.toString());
+        return json;
+    }
+
+    private void postResultsToUI(final String res) {
+        TextView tv = getActivity().findViewById(R.id.loginStatus);
+        if (res == null)
+            tv.setText("Connection failed");
+        else
+            tv.setText(res);
     }
 
     private void loadPreferences() {
@@ -466,6 +549,9 @@ public class RegisterAccountFragment extends Fragment {
     }
 
     private void savePreferences() {
+        // Using shared preferences throughout the activities
+        // https://stackoverflow.com/questions/22138389/using-shared-preferences-in-between-activities
+//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         SharedPreferences sp = getActivity().getSharedPreferences(
                 getString(R.string.saved_info), Context.MODE_PRIVATE);
 

@@ -41,6 +41,8 @@
     <string name="privacyLabel">Privacy</string>
     <string name="privacyDescription">Make profile publicly visible</string>
 
+    <string name="notAvailableText">The username is already taken! Try with a different username.</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

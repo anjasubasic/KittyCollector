@@ -18,6 +18,15 @@ import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONObject;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -30,11 +39,17 @@ import static android.content.Context.MODE_PRIVATE;
  */
 
 public class SettingsFragment extends android.support.v4.app.DialogFragment {
-    private TextView fullname, username;
+    private TextView fullnameTxt, usernameTxt;
     private ImageView profilePhoto;
     private Button signOutButton;
     private LinearLayout about, alert;
     private Switch privacy;
+
+    // Get username and password from activity start intent
+    // https://stackoverflow.com/questions/2405120/how-to-start-an-intent-by-passing-some-parameters-to-it
+//    Intent myIntent = getActivity().getIntent();
+//    String username = myIntent.getStringExtra("username");
+//    String password= myIntent.getStringExtra("password");
 
     @Nullable
     @Override
@@ -42,8 +57,8 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         final View view = inflater.inflate(R.layout.settings_fragment, container, false);
 
         profilePhoto = view.findViewById(R.id.profilePicture);
-        fullname = view.findViewById(R.id.fullnameText);
-        username = view.findViewById(R.id.usernameText);
+        fullnameTxt = view.findViewById(R.id.fullnameText);
+        usernameTxt = view.findViewById(R.id.usernameText);
         signOutButton = view.findViewById(R.id.signOutButton);
 
         setProfile();
@@ -80,11 +95,11 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
     }
 
     private void setProfile() {
-        loadProfile();
-        loadPreferences();
+        loadProfilePic();
+        loadUserInfo();
     }
 
-    private void loadProfile() {
+    private void loadProfilePic() {
         try {
             FileInputStream inputImage = getContext().openFileInput(getString(R.string.profileFileName));
             Bitmap profile = BitmapFactory.decodeStream(inputImage);
@@ -97,15 +112,35 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         }
     }
 
-    private void loadPreferences() {
+    private void loadUserInfo() {
         SharedPreferences sp = getActivity().getSharedPreferences(
                 getString(R.string.saved_info), Context.MODE_PRIVATE);
-        username.setText(sp.getString("character name", ""));
-        fullname.setText(sp.getString("full name", ""));
+        String username = sp.getString("character name", "");
+        String fullname = sp.getString("full name", "");
+        fullnameTxt.setText(fullname);
+        usernameTxt.setText(username);
+
+//        RequestQueue queue = Volley.newRequestQueue(this.getContext());
+//        String url ="http://cs65.cs.dartmouth.edu/nametest.pl?";
+//        JsonObjectRequest jsObjRequest = new JsonObjectRequest
+//                (Request.Method.GET, url + username + "&" + password, null, new Response.Listener<JSONObject>() {
+//
+//                    @Override
+//                    public void onResponse(JSONObject response) {
+//                    // get stuff
+//                    }
+//                }, new Response.ErrorListener() {
+//
+//                    @Override
+//                    public void onErrorResponse(VolleyError error) {
+//                        //TODO: what's the proper way to handle this?
+//                    }
+//                });
+//        queue.add(jsObjRequest);
 
         if (sp != null) {
-            fullname.setText("Jane Doe");
-            username.setText("@jane");
+            fullnameTxt.setText("Jane Doe");
+            usernameTxt.setText("@jane");
         }
     }
 

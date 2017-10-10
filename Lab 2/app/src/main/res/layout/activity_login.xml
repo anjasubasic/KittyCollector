@@ -21,13 +21,14 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal">
+                android:layout_gravity="center_horizontal"
+                android:gravity="center">
 
                 <!-- add a header image here later -->
                 <ImageView
                     android:id="@+id/imageProfile"
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="130dp"
                     android:layout_margin="10dp"/>
 
             </RelativeLayout>
@@ -76,7 +77,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_margin="30dp">
+                android:layout_margin="0dp">
+
+                <TextView
+                    android:id="@+id/status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""/>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="20dp">
 
                 <TextView
                     android:id="@+id/create_account_txt"
