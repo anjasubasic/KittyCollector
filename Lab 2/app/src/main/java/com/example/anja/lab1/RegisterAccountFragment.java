@@ -458,7 +458,8 @@ public class RegisterAccountFragment extends Fragment {
 
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            //TODO: what's the proper way to handle this?
+                            Toast.makeText(getActivity().getApplicationContext(),
+                                    "ERROR: " + error, Toast.LENGTH_SHORT).show();
                         }
                     });
             queue.add(jsObjRequest);
