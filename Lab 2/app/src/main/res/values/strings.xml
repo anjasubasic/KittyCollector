@@ -38,7 +38,7 @@
     <string name="signOutButton">Sign Out</string>
     <string name="preferencesPartLabel">Preferences</string>
     <string name="aboutLabel">About</string>
-    <string name="aboutDescription">Edit your profile</string>
+    <string name="aboutDescription">Edit your bio</string>
     <string name="alertLabel">Alert</string>
     <string name="alertDescription">Vibration, notification, sound settings</string>
     <string name="privacyLabel">Privacy</string>

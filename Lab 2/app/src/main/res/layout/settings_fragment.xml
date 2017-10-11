@@ -86,86 +86,10 @@
                 android:layout_margin="3dp"
                 android:text="@string/preferencesPartLabel" />
 
-            <LinearLayout
-                android:background="@drawable/selector"
-                android:id="@+id/aboutSettings"
+            <android.support.v7.widget.ContentFrameLayout
+                android:id="@+id/fragment_container"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="15dp"
-                android:clickable="true"
-                android:focusable="true">
-
-                <TextView
-                    style="@style/SettingsTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/aboutLabel" />
-
-                <TextView
-                    style="@style/SettingsDescription"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/aboutDescription" />
-            </LinearLayout>
-
-            <View style="@style/Divider" />
-
-            <LinearLayout
-                android:background="@drawable/selector"
-                android:id="@+id/alertSettings"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="15dp">
-
-                <TextView
-                    style="@style/SettingsTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/alertLabel" />
-
-                <TextView
-                    style="@style/SettingsDescription"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/alertDescription" />
-            </LinearLayout>
-
-            <View style="@style/Divider" />
-
-            <LinearLayout
-                android:id="@+id/privacySettings"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:padding="15dp">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        style="@style/SettingsTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/privacyLabel" />
-
-                    <TextView
-                        style="@style/SettingsDescription"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/privacyDescription" />
-                </LinearLayout>
-
-                <Switch
-                    android:id="@+id/privacySwitch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
+                android:layout_height="300dp"/>
 
 
         </LinearLayout>

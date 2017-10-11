@@ -1,11 +1,13 @@
 package com.example.anja.lab1;
 
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -62,31 +64,20 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
             public void onClick(View v) { onSignOutClicked(); }
         });
 
-        about = view.findViewById(R.id.aboutSettings);
-        alert = view.findViewById(R.id.alertSettings);
-        privacy = view.findViewById(R.id.privacySwitch);
-
-        about.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) { onAboutClicked(); }
-        });
-        alert.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) { onAlertClicked(); }
-        });
-        privacy.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    // The toggle is enabled
-                    Log.d("PRIVACY", "public");
-                } else {
-                    // The toggle is disabled
-                    Log.d("PRIVACY", "private");
-                }
-            }
-        });
+        FragmentTransaction transaction = getActivity().getFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, new PrefsFragment());
+        transaction.addToBackStack(null);
+        transaction.commit();
 
         return view;
+    }
+
+    public static class PrefsFragment extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.prefs);
+        }
     }
 
     private void setProfile() {
@@ -146,15 +137,5 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         getActivity().finish();
-    }
-
-    private void onAboutClicked() {
-        // TODO: Lead to profile editing page
-        Log.d("STATE", "onAboutClicked");
-    }
-
-    private void onAlertClicked() {
-        // TODO: Lead to different page
-        Log.d("STATE", "onAlertClicked");
     }
 }
