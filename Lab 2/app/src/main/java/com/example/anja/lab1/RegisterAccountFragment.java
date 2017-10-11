@@ -62,7 +62,7 @@ public class RegisterAccountFragment extends Fragment {
     private static final String URI_STATE_KEY = "saved_uri";
     private static final String PWD_STATE_KEY = "dialog_password";
     int requestCode = 123;
-    private boolean passwordsMatch;
+    private boolean passwordsMatch, pwdChecked;
     private boolean inputValid;
     private String dialogPassword, fragmentPassword;
     private ImageView profilePhoto, check, pwdCheck;
@@ -101,6 +101,7 @@ public class RegisterAccountFragment extends Fragment {
                         // disable buttons and reset variables
                         saveButton.setEnabled(false);
                         passwordsMatch = false;
+                        pwdChecked = false;
                         clearButton.setVisibility(View.INVISIBLE);
                         pwdCheck.setVisibility(View.INVISIBLE);
                         croppedUri = null;
@@ -129,6 +130,7 @@ public class RegisterAccountFragment extends Fragment {
 
                 // only show dialog if the user has typed in a password
                 if (!hasFocus && password.length() != 0) {
+                    pwdChecked = true;
                     pwdCheck.setImageResource(R.drawable.cross);
                     FragmentManager manager = getFragmentManager();
                     ConfirmPasswordDialog myDialog = ConfirmPasswordDialog.newInstance(password);
@@ -193,8 +195,8 @@ public class RegisterAccountFragment extends Fragment {
         // TODO: Fix - Clicking the back button from here closes the app.
     }
 
+    // postUserInfo: Volley POST request, referenced from class example
     public void postUserInfo() {
-        TextView status = getActivity().findViewById(R.id.loginStatus);
         String url = "http://cs65.cs.dartmouth.edu/profile.pl";
         RequestQueue queue = Volley.newRequestQueue(this.getContext());
         JSONObject userInfo = buildJSONObject();
@@ -306,6 +308,7 @@ public class RegisterAccountFragment extends Fragment {
         if (dialogPassword != null) {
             outState.putString(PWD_STATE_KEY, dialogPassword);
         }
+        outState.putBoolean("pwdCheck", pwdChecked);
         super.onSaveInstanceState(outState);
     }
 
@@ -314,6 +317,7 @@ public class RegisterAccountFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         Log.d("STATE", "onRestoreState");
         if(savedInstanceState != null) {
+            pwdChecked = savedInstanceState.getBoolean("pwdCheck");
             croppedUri = savedInstanceState.getParcelable(URI_STATE_KEY);
             dialogPassword = savedInstanceState.getString(PWD_STATE_KEY);
             if (croppedUri != null) {
@@ -328,9 +332,6 @@ public class RegisterAccountFragment extends Fragment {
     // **---------- private helper functions ----------**
 
     private void setSaveButtonEnabled() {
-        Log.d("USERNAME", Boolean.toString(available));
-        Log.d("PWDMATCH", Boolean.toString(passwordsMatch));
-        Log.d("INPUTVALID", Boolean.toString(inputValid));
         if (passwordsMatch && inputValid && available) {
             saveButton.setEnabled(true);
         } else {
@@ -433,6 +434,11 @@ public class RegisterAccountFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
+                Log.d("CHECKED", Boolean.toString(pwdChecked));
+                if(pwdChecked) {
+                    if (passwordsMatch) { pwdCheck.setImageResource(R.drawable.checkmark); }
+                    else { pwdCheck.setImageResource(R.drawable.cross); }
+                }
             }
 
         });
@@ -528,9 +534,10 @@ public class RegisterAccountFragment extends Fragment {
 
     private JSONObject buildJSONObject(){
         JSONObject json = new JSONObject();
-        profilePhoto.buildDrawingCache();
-        Bitmap profile = profilePhoto.getDrawingCache();
-        String image = getStringFromBitmap(profile);
+//        profilePhoto.buildDrawingCache();
+//        Bitmap profile = profilePhoto.getDrawingCache();
+//        String image = getStringFromBitmap(profile);
+
         if (charTxtEdit.getText().toString() == null || pwdTxtEdit.getText().toString() == null) {
             Toast.makeText(getActivity().getApplicationContext(),
                     getString(R.string.invalidCreateMessage), Toast.LENGTH_LONG).show();
@@ -566,12 +573,12 @@ public class RegisterAccountFragment extends Fragment {
     }
 
     private void postResultsToUI(final String res) {
-        // TODO: change to Toasts
-        TextView tv = getActivity().findViewById(R.id.loginStatus);
         if (res == null)
-            tv.setText("Connection failed");
+            Toast.makeText(getActivity().getApplicationContext(), getString(R.string.noConnectionText),
+                    Toast.LENGTH_SHORT).show();
         else
-            tv.setText(res);
+            Toast.makeText(getActivity().getApplicationContext(), res,
+                    Toast.LENGTH_SHORT).show();
     }
 
     private void savePreferences() {
@@ -582,11 +589,11 @@ public class RegisterAccountFragment extends Fragment {
 //                getString(R.string.saved_info), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
         editor.putString("character name", charTxtEdit.getText().toString());
-        editor.putString("full name", nameTxtEdit.getText().toString());
+//        editor.putString("full name", nameTxtEdit.getText().toString());
         editor.putString("password", pwdTxtEdit.getText().toString());
-        editor.putBoolean("input valid", inputValid);
-        editor.putBoolean("passwords match", passwordsMatch);
-        editor.putString("dialog password", dialogPassword);
+//        editor.putBoolean("input valid", inputValid);
+//        editor.putBoolean("passwords match", passwordsMatch);
+//        editor.putString("dialog password", dialogPassword);
         editor.putBoolean("login", true);
         editor.putBoolean("remember", true);
 

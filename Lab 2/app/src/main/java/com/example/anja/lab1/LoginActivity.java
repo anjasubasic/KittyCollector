@@ -106,9 +106,11 @@ public class LoginActivity extends AppCompatActivity {
 
     private void onLoginClicked() {
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         LoginActivity.this.startActivity(intent);
         // TODO: send login request
         writePreferences();
+        finish();
     }
 
     private void loadPreferences() {

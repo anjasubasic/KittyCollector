@@ -1,7 +1,6 @@
 package com.example.anja.lab1;
 
 import android.app.FragmentTransaction;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -15,7 +14,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
@@ -31,10 +29,7 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONObject;
 
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-
-import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by Anja on 9/24/2017.
@@ -66,7 +61,7 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
 
         FragmentTransaction transaction = getActivity().getFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, new PrefsFragment());
-        transaction.addToBackStack(null);
+//        transaction.addToBackStack(null);
         transaction.commit();
 
         return view;
