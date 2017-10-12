@@ -237,7 +237,6 @@ public class RegisterAccountFragment extends Fragment {
             };
             queue.add(joRequest);
         }
-        // TODO: better handling of POST result --> Wait for posting result (for image)
 
         // save entered user information and move to main activity
         savePreferences();
@@ -434,10 +433,12 @@ public class RegisterAccountFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                Log.d("CHECKED", Boolean.toString(pwdChecked));
-                if(pwdChecked) {
-                    if (passwordsMatch) { pwdCheck.setImageResource(R.drawable.checkmark); }
-                    else { pwdCheck.setImageResource(R.drawable.cross); }
+                if(pwdTxtEdit.getText().length() == 0) {
+                    pwdCheck.setVisibility(View.INVISIBLE);
+                } else {
+                    pwdCheck.setVisibility(View.VISIBLE);
+                    pwdCheck.setImageResource(R.drawable.cross);
+                    if(pwdChecked && passwordsMatch) { pwdCheck.setImageResource(R.drawable.checkmark); }
                 }
             }
 
@@ -546,8 +547,8 @@ public class RegisterAccountFragment extends Fragment {
         try {
             json.put("name", charTxtEdit.getText().toString());
             json.put( "password", pwdTxtEdit.getText().toString());
-            json.put("fullname", nameTxtEdit.getText().toString());
-//            json.put("profile", image);
+            json.put("full_name", nameTxtEdit.getText().toString());
+            json.put("photo", "");
         }
         catch(JSONException e){
             Log.d("JSON", "Invalid JSON: " + e.toString());
@@ -588,8 +589,8 @@ public class RegisterAccountFragment extends Fragment {
 //        SharedPreferences sp = getActivity().getSharedPreferences(
 //                getString(R.string.saved_info), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
-        editor.putString("character name", charTxtEdit.getText().toString());
-//        editor.putString("full name", nameTxtEdit.getText().toString());
+        editor.putString("username", charTxtEdit.getText().toString());
+        editor.putString("full_name", nameTxtEdit.getText().toString());
         editor.putString("password", pwdTxtEdit.getText().toString());
 //        editor.putBoolean("input valid", inputValid);
 //        editor.putBoolean("passwords match", passwordsMatch);

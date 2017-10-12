@@ -2,6 +2,7 @@ package com.example.anja.lab1;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,6 +17,17 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by Anja on 10/4/2017.
@@ -105,17 +117,82 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void onLoginClicked() {
+        writePreferences();
+        sendLoginRequest(username.getText().toString(), password.getText().toString());
+    }
+
+    private void sendLoginRequest(String username, String password) {
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url ="http://cs65.cs.dartmouth.edu/profile.pl?name=";
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest (Request.Method.GET,
+                url + username + "&password=" + password, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        onLoginRequest(response);
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getApplicationContext(), "Error: " + error.toString(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+        queue.add(jsObjRequest);
+    }
+
+    private void onLoginRequest(JSONObject response) {
+        Log.d("LOGIN_RESULT", "onLoginRequest: " + response.toString());
+        if (response == null) {
+            Toast.makeText(getApplicationContext(),
+                    R.string.noConnectionText, Toast.LENGTH_SHORT).show();
+        }
+        else {
+            Boolean noError = false;
+            try {
+                getError(response);
+            }
+            catch (JSONException e) {
+                noError = true;
+            }
+            try {
+                doLogIn(response);
+            }
+            catch (JSONException e){
+                if (noError == true) {
+                    Toast.makeText(getApplicationContext(),
+                            "Unable to parse response: " + response.toString(),
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
+
+    private void getError(JSONObject response) throws JSONException {
+        Log.d("LOGIN", "getError: ");
+        Toast.makeText(getApplicationContext(),
+                "Error: " + response.getString("error"), Toast.LENGTH_SHORT).show();
+    }
+
+    private void doLogIn(JSONObject response) throws JSONException {
+        Log.d("LOGIN", "doLogIn: ");
+        // save user information from response
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putBoolean("login", true);
+        editor.putString("full_name", response.getString("full_name"));
+        editor.commit();
+
+        // move to main activity
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         LoginActivity.this.startActivity(intent);
-        // TODO: send login request
-        writePreferences();
         finish();
     }
 
     private void loadPreferences() {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        username.setText(sp.getString("character name", ""));
+        username.setText(sp.getString("username", ""));
         password.setText(sp.getString("password", ""));
         if(sp.getBoolean("remember", false)) { checkBox.setChecked(true); }
     }
@@ -123,9 +200,8 @@ public class LoginActivity extends AppCompatActivity {
     private void writePreferences() {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sp.edit();
-        editor.putBoolean("login", true);
         if(checkBox.isChecked()) {
-            editor.putString("character name", username.getText().toString());
+            editor.putString("username", username.getText().toString());
             editor.putString("password", password.getText().toString());
             editor.putBoolean("remember", true);
         }

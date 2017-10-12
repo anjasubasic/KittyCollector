@@ -96,17 +96,10 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
 
     private void loadUserInfo() {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String fullname = sp.getString("full name", "");
-        String username = "@" + sp.getString("character name", "");
+        String fullname = sp.getString("full_name", "No Name Set");
+        String username = "@" + sp.getString("username", "");
         fullnameTxt.setText(fullname);
         usernameTxt.setText(username);
-
-        // TODO: Get user information from server
-        // Get username and password from activity start intent
-        // https://stackoverflow.com/questions/2405120/how-to-start-an-intent-by-passing-some-parameters-to-it
-//        Intent myIntent = getActivity().getIntent();
-//        String username = myIntent.getStringExtra("username");
-//        String password= myIntent.getStringExtra("password");
 
         if (sp == null) {
             fullnameTxt.setText("Jane Doe");
@@ -122,6 +115,14 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         if(!sp.getBoolean("remember", false)) {
             editor.clear();
             getContext().deleteFile(getString(R.string.profileFileName));
+        } else {
+            String username = sp.getString("username", "");
+            String password = sp.getString("password", "");
+            Boolean remember = sp.getBoolean("remember", false);
+            editor.clear();
+            editor.putString("username", username);
+            editor.putString("password", password);
+            editor.putBoolean("remember", remember);
         }
         editor.putBoolean("login", false);
         editor.commit();
