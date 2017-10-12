@@ -79,7 +79,6 @@ public class RegisterAccountFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable final Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.register_account_fragment, container,false);
-        final String invalidCharacterSet = "&=/";
 
         profilePhoto = view.findViewById(R.id.imageProfile);
         charTxtEdit = view.findViewById(R.id.character_edit_text);
@@ -92,19 +91,6 @@ public class RegisterAccountFragment extends Fragment {
         check = view.findViewById(R.id.nameCheck);
         pwdCheck = view.findViewById(R.id.pwdCheck);
         fragment = this;
-
-        InputFilter inputFilter = new InputFilter() {
-
-            @Override
-            public CharSequence filter(CharSequence charSequence, int i, int i1, Spanned spanned, int i2, int i3) {
-                if (charSequence != null && invalidCharacterSet.contains(("" + charSequence))) {
-                    return "";
-                }
-                return null;
-            }
-        };
-
-        pwdTxtEdit.setFilters(new InputFilter[] { inputFilter });
 
         clearButton.setOnClickListener(
                 new View.OnClickListener() {
