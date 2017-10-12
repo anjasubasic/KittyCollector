@@ -24,6 +24,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.text.TextWatcher;
 import android.util.Base64;
 import android.util.Log;
@@ -77,6 +79,8 @@ public class RegisterAccountFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable final Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.register_account_fragment, container,false);
+        final String invalidCharacterSet = "&=/";
+
         profilePhoto = view.findViewById(R.id.imageProfile);
         charTxtEdit = view.findViewById(R.id.character_edit_text);
         nameTxtEdit = view.findViewById(R.id.name_edit_text);
@@ -88,6 +92,21 @@ public class RegisterAccountFragment extends Fragment {
         check = view.findViewById(R.id.nameCheck);
         pwdCheck = view.findViewById(R.id.pwdCheck);
         fragment = this;
+
+        InputFilter inputFilter = new InputFilter() {
+
+            @Override
+            public CharSequence filter(CharSequence charSequence, int i, int i1, Spanned spanned, int i2, int i3) {
+                if (charSequence != null && invalidCharacterSet.contains(("" + charSequence))) {
+                    Toast.makeText(getActivity().getApplicationContext(),
+                            "Characters &, / and = are invalid", Toast.LENGTH_SHORT).show();
+                    return "";
+                }
+                return null;
+            }
+        };
+
+        pwdTxtEdit.setFilters(new InputFilter[] { inputFilter });
 
         clearButton.setOnClickListener(
                 new View.OnClickListener() {
@@ -415,7 +434,6 @@ public class RegisterAccountFragment extends Fragment {
                 checkInput();
 
                 fragmentPassword = pwdTxtEdit.getText().toString();
-
 
                 if (pwdTxtEdit.getText().length() == 0) {
                     inputValid = false;
