@@ -1,57 +1,62 @@
-# 📱 Shaking Shiba -- CS65 Lab1
+# 📱 Shaking Shiba -- CS65 Lab2
 
 ## 💻 General Info
 
 ### 📝 Assignment Description
 
-In this lab, we present a single-page application with four major fields:
-- character name
-- full name
-- password
-- profile photo
+In this lab, we present an application that connects to the internet to create an account and store data on the server.
 
-The app has the ability to save the information once all the fields have been completed.
-To ensure security, once the user enters a password, a check is run to see if the user can match the password exactly.
+For the server connectivity parts, we used the Volley library.
+
+When you try to log in, `username` and `password` are required.
+
+When you create an account, `username`,  `full_name`, and `password` are needed, with an option to upload an image.
+
+Creating an account automatically signs you in, taking to the main activity which is consisted of 4 tabs.
+
+The "settings" tab is the only one with features as of now. Other tabs have placeholders in them, and eventually we will fill them with content.
 
 ### 🐶 Team Shaking Shiba
 ![shiba](app/src/main/res/drawable/shiba.jpg)
- - Jenny Seong (draws random stuff like the above mascot)
+ - Jenny Seong
  - Anja Subasic
 
 ### 🏠 Installation
 
-  I'm sure you're all amazing developers and know what's up, but in case you forgot...
-
   1. `git clone`
   2. open `android studio`
   3. open the project folder
-  4. press the green triangle thingy on the top right ▶️
-  5. wait for build with your fingers crossed 🤞
+  4. press the green triangle thingy (`Run`) on the top right ▶️
+  5. wait for build and play around hoping that there are no bugs 🐛
 
 ## 🎨 Design Points
 
-Here is the prompt given to us:
+Here is the prompt given to us, with our own notations for better understanding:
 
-![balsamic](http://www.cs.dartmouth.edu/~sergey/cs65/lab1/UserProfile.png)
+![balsamic](app/src/main/res/drawable/flow.png)
 
 Our app follows most points in the above mock, with a few differences that seemed reasonable to us.
 
-#### ♻️ The clear button
+#### 🌎 Log In Screen
 
-The mockup shows the "I already have an account" button and the "Clear" button as interchangeable, mutually exclusive entities. We thought that the two buttons can coexist happily, so we made space for both buttons. Let there be peace!
+We have a "Remember me" button that allows the user's input username and password to be saved when the user logs out. This feature is enabled by default when a new account is created.
 
-Clear goes away when there is nothing in the fields, but will pop up any time there is something that needs to be cleaned up.
+#### 👩 Edge cases
 
-#### 👩 The profile image
+According to our experiments and various sources such as https://perishablepress.com/stop-using-unsafe-characters-in-urls/, there are certain characters that will cause our HTTP query to go haywire because they serve as parsers.
 
-In the mockup, there is only a picture in the "Share your picture" section. So what do you do when you want to change your picture? Tapping on a picture can have many expected results--it could be view profile, change profile, add pictures...
+In an attempt to prevent any confusion, we have blocked such characters from being input into the `username` and `password` fields.
 
-We thought that it was more intuitive to have an explicit button that tells the user they can "change" their profile when they click the button.
+#### ✅ Username and Password Check
 
-Also, we have a super cute default image. Woof!
+We have a section right next to the `username` and `password` fields that visually notifies the user if the input username is available after checking with the server, and to notify if the password has been verified with the dialog that prompts the user to confirm their password entry.
 
-#### 🚗 Navigation
+According to these checks, the save button at the bottom of the screen will be enabled/disabled, making sure that the user has put in all the necessary data for creating an account.
 
-It seems like the mockup shown above is a part of a bigger app that has three more parts. In order to better represent that grandeur of the app, we implemented tabs, and made our lives very difficult using a *fragment* for the assignment.
+#### 🚗 Signing In (Extra credit)
 
-But our app is now expandable and scalable, so no regrets. Just need to catch up on sleep...
+There are some complexities regarding the signing in--since everyone's assumptions are different, we will like to put out front that we pass in `username`, `password`, `full_name`, and `profile` image when signing up, and expect to get these values within successful logging in.
+
+We retrieve the `full_name` that the user would have input at creation of the account, and carry the information onto the main activity. We assume there is a `full_name` field since we check for the validity of the inputs at sign up, as discussed in the previous section. This may not be the case for accounts made through different applications, so you may receive a "Parsing error" message even when the `GET` request returns a valid response.
+
+Once the sign in request is made, we try two things with the response. 1) see if there are any errors 2) see if there is a JSON object with a `full_name` category. We also catch Volley errors. Thus, because we expect to get a `full_name` entry within signing in, the data will be displayed on the profile section of the settings tab.
