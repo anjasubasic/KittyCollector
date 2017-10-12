@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +18,7 @@ public class ConfirmPasswordDialog extends android.support.v4.app.DialogFragment
 
     public static String dialogPassword;
     public static int requestCode = 123;
+
 
     static ConfirmPasswordDialog newInstance(String verifyPassword) {
         ConfirmPasswordDialog dialog = new ConfirmPasswordDialog();

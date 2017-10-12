@@ -52,7 +52,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
-                android:hint=""/>
+                android:hint=""
+                android:digits="abcdefghijklmnopqrstuvwxyz1234567890"/>
 
             <ImageView
                 android:id="@+id/nameCheck"
@@ -81,7 +82,8 @@
             android:id="@+id/name_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="5dp" />
+            android:layout_marginVertical="5dp"
+            />
 
         <!-- Password -->
         <TextView
@@ -96,6 +98,7 @@
             <EditText
                 android:id="@+id/password_edit_text"
                 android:inputType="textPassword"
+                android:digits="abcdefghijklmnopqrstuvwxyz1234567890"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
