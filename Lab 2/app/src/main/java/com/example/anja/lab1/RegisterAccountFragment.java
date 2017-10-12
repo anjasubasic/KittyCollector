@@ -98,8 +98,6 @@ public class RegisterAccountFragment extends Fragment {
             @Override
             public CharSequence filter(CharSequence charSequence, int i, int i1, Spanned spanned, int i2, int i3) {
                 if (charSequence != null && invalidCharacterSet.contains(("" + charSequence))) {
-                    Toast.makeText(getActivity().getApplicationContext(),
-                            "Characters &, / and = are invalid", Toast.LENGTH_SHORT).show();
                     return "";
                 }
                 return null;
