@@ -1,0 +1,51 @@
+<resources>
+    <!-- Tabs strings -->
+    <string name="app_name">Shakin\' Shiba</string>
+    <string name="log_tab">Log</string>
+    <string name="history_tab">History</string>
+    <string name="score_tab">Score</string>
+    <string name="settings_tab">Settings</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- Create page strings -->
+    <string name="haveAccountButton">I already have an account</string>
+    <string name="clearButton">Clear</string>
+    <string name="charNameLabel">Username:</string>
+    <string name="availableLabel">Available?</string>
+    <string name="fullNameLabel">Full name (private, not listed):</string>
+    <string name="passwordLabel">Choose a password:</string>
+    <string name="pwdMatchLabel">Confirmed?</string>
+    <string name="pictureLabel">Share your picture (optional):</string>
+    <string name="saveButton">Save</string>
+    <string name="confirmPassword">Retype your password to confirm:</string>
+    <string name="changeProfile">Change</string>
+    <string name="profileFileName">profile_photo.png</string>
+    <string name="profileSaveText">Saved User Information</string>
+    <string name="invalidCreateMessage">Invalid: Must have username and password!</string>
+    <string name="notAvailableText">The username is already taken! Try with a different username.</string>
+    <string name="noConnectionText">Connection Failed</string>
+    <string name="password_status">Passwords Match</string>
+    <string name="saved_info">Saved Settings</string>
+
+    <!-- Login Screen Strings -->
+    <string name="password_label">Password:</string>
+    <string name="login_button">Login</string>
+    <string name="remember">Remember Me</string>
+    <string name="new_account">Create a New Account</string>
+
+    <!-- Settings tab settings -->
+    <string name="profilePartLabel">Profile</string>
+    <string name="fullnamePlaceholder">Full Name</string>
+    <string name="usernamePlaceholder">"@username"</string>
+    <string name="signOutButton">Sign Out</string>
+    <string name="preferencesPartLabel">Preferences</string>
+    <string name="aboutLabel">About</string>
+    <string name="aboutDescription">Edit your bio</string>
+    <string name="alertLabel">Alert</string>
+    <string name="alertDescription">Vibration, notification, sound settings</string>
+    <string name="privacyLabel">Privacy</string>
+    <string name="privacyDescription">Make profile publicly visible</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
