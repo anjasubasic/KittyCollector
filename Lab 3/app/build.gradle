@@ -17,6 +17,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    repositories {
+        maven {
+            url 'https://maven.google.com'
+        }
+    }
 }
 
 dependencies {
@@ -30,4 +35,5 @@ dependencies {
     })
     compile 'com.soundcloud.android:android-crop:1.0.1@aar'
     compile 'com.android.volley:volley:1.0.0'
+    compile 'com.android.support.constraint:constraint-layout:1.1.0-beta1'
 }
