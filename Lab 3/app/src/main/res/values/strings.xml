@@ -49,7 +49,12 @@
     <!-- Play tab strings -->
     <string name="playButton">Let\'s Meow!</string>
     <string name="helloMessage">Hi, player!</string>
-    <string name="scoreTrack">You have collected 0 cats.</string>
+    <string name="scoreTrack">You have befriended 0 cats.</string>
+
+    <!-- Map activity strings -->
+    <string name="petButton">Pet</string>
+    <string name="catNamePlaceholder">Peach</string>
+    <string name="catDistPlaceholder">0.14 mi</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

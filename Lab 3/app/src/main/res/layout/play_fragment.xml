@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/relativeLayout">
 
+    <!-- Image resizing code referenced from
+    https://stackoverflow.com/questions/9798392/imageview-have-height-match-width-->
     <ImageView
         android:id="@+id/playImage"
         android:layout_width="360dp"
@@ -24,7 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="28dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="15dp"
         android:text="@string/helloMessage"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/playImage"
@@ -45,7 +46,7 @@
         android:id="@+id/playButton"
         android:layout_width="380dp"
         android:layout_height="65dp"
-        android:layout_margin="5dp"
+        android:layout_margin="10dp"
         android:text="@string/playButton"
         android:theme="@style/ActionButton"
         app:layout_constraintTop_toBottomOf="@id/scoreText"
