@@ -294,7 +294,7 @@ public class RegisterAccountFragment extends Fragment {
                 // Delete temporary image taken by camera after crop.
                 if (isTakenFromCamera) {
 
-                    File f = new File(  .getPath());
+                    File f = new File(imageUri.getPath());
                     if (f.exists())
                         f.delete();
                 }
