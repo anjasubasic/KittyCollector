@@ -5,6 +5,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -97,6 +99,12 @@ public class MapActivity extends AppCompatActivity
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 buildGoogleApiClient();
                 map.setMyLocationEnabled(true);
+                LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                Criteria criteria = new Criteria();
+                Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,18));
+
                 RequestCatLocations();
 
             } else {
@@ -106,82 +114,6 @@ public class MapActivity extends AppCompatActivity
             buildGoogleApiClient();
             map.setMyLocationEnabled(true);
         }
-    }
-
-    private void RequestCatLocations() {
-            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-            String username = sp.getString("username", "");
-            String password = sp.getString("password", "");
-
-            RequestQueue queue = Volley.newRequestQueue(this);
-            // TODO: The following returns catlist for the easy mode. Still need to implement hard mode
-            String url ="http://cs65.cs.dartmouth.edu/catlist.pl?name=";
-            JsonArrayRequest jsObjRequest = new JsonArrayRequest (Request.Method.GET,
-                    url + username + "&password=" + password, null,
-                    new Response.Listener<JSONArray>() {
-                        @Override
-                        public void onResponse(JSONArray response) {
-                            // ADD CATS
-                            onCatlistRequest(response);
-                        }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(getApplicationContext(), "Error: " + error.toString(),
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
-            queue.add(jsObjRequest);
-        }
-
-    private void onCatlistRequest(JSONArray response) {
-        Log.d("LOGIN_RESULT", "onLoginRequest: " + response.toString());
-        if (response == null) {
-            Toast.makeText(getApplicationContext(),
-                    R.string.noConnectionText, Toast.LENGTH_SHORT).show();
-        }
-        else {
-            try {
-                doGetCatlist(response);
-                addCatsToMap();
-            }
-            catch (JSONException e){
-                    Toast.makeText(getApplicationContext(),
-                            "Unable to parse response: " + response.toString(),
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
-
-    private void addCatsToMap() {
-        //TODO: Add icons to markers, fix bug with camera 
-        for (int i = 0; i < catList.size(); i++) {
-            MarkerOptions markerOptions = new MarkerOptions();
-            LatLng latLng = new LatLng(Double.parseDouble(catList.get(i).get(2)), Double.parseDouble(catList.get(i).get(3)));
-            markerOptions.position(latLng);
-            markerOptions.title(catList.get(i).get(4));
-            markerOptions.icon(BitmapDescriptorFactory.defaultMarker());
-            map.addMarker(markerOptions);
-        }
-    }
-
-    private void doGetCatlist(JSONArray response) throws JSONException {
-        Log.d("CATLIST", "TEST");
-        List<ArrayList<String>> cats = new ArrayList<>();
-
-        JSONArray catlistArray = response;
-        for (int i = 0; i < catlistArray.length(); i++) {
-            JSONObject cat = catlistArray.getJSONObject(i);
-            String catId = cat.getString("catId");
-            String picUrl = cat.getString("picUrl");
-            String lat = cat.getString("lat");
-            String lng = cat.getString("lng");
-            String name = cat.getString("name");
-            String petted = cat.getString("petted");
-            cats.add(new ArrayList<>(Arrays.asList(catId, picUrl, lat, lng, name, petted)));
-        }
-
-        catList = cats;
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -220,17 +152,13 @@ public class MapActivity extends AppCompatActivity
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
-        markerOptions.title("Current Position");
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker());
-        //meMarker = map.addMarker(markerOptions); // no need to add a marker for current location, google maps already adds the current location (little blue thing)
-
-        //move map camera
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,16));
+        markerOptions.title("Starting Position");
+        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_self));
+        meMarker = map.addMarker(markerOptions); // no need to add a marker for current location, google maps already adds the current location (little blue thing)
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) { }
-
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private void checkLocationPermission() {
@@ -289,5 +217,97 @@ public class MapActivity extends AppCompatActivity
                 return;
             }
         }
+    }
+
+    // CAT LOCATION METHODS //
+    private void RequestCatLocations() {
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+            String username = sp.getString("username", "");
+            String password = sp.getString("password", "");
+
+            RequestQueue queue = Volley.newRequestQueue(this);
+            // TODO: The following returns catlist for the easy mode. Still need to implement hard mode
+            String url ="http://cs65.cs.dartmouth.edu/catlist.pl?name=";
+            JsonArrayRequest jsObjRequest = new JsonArrayRequest (Request.Method.GET,
+                    url + username + "&password=" + password, null,
+                    new Response.Listener<JSONArray>() {
+                        @Override
+                        public void onResponse(JSONArray response) {
+                            // ADD CATS
+                            onCatlistRequest(response);
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Toast.makeText(getApplicationContext(), "Error: " + error.toString(),
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+            queue.add(jsObjRequest);
+        }
+
+    private void onCatlistRequest(JSONArray response) {
+        Log.d("LOGIN_RESULT", "onLoginRequest: " + response.toString());
+        if (response == null) {
+            Toast.makeText(getApplicationContext(),
+                    R.string.noConnectionText, Toast.LENGTH_SHORT).show();
+        }
+        else {
+            try {
+                doGetCatlist(response);
+                addCatsToMap();
+            }
+            catch (JSONException e){
+                    Toast.makeText(getApplicationContext(),
+                            "Unable to parse response: " + response.toString(),
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+
+    private void addCatsToMap() {
+        //TODO: Add icons to markers, fix bug with camera
+
+        for (int i = 0; i < catList.size(); i++) {
+            Double catLng = Double.parseDouble(catList.get(i).get(2));
+            Double catLon = Double.parseDouble(catList.get(i).get(3));
+            String catName = catList.get(i).get(4);
+            MarkerOptions markerOptions = new MarkerOptions();
+            LatLng latLng = new LatLng(catLng, catLon);
+            Boolean catPetted = Boolean.parseBoolean(catList.get(i).get(5));
+            markerOptions.position(latLng);
+            markerOptions.title(catName);
+
+            // NOTE for testing:
+            // To test if cats have been petted with cat 1:
+            // http://cs65.cs.dartmouth.edu/pat.pl?name=anja&password=anja&catid=1&lat=43.706838&lng=-72.287409
+            if (catPetted) {
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_gray));
+            }
+            else {
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_green));
+            }
+
+            map.addMarker(markerOptions);
+        }
+    }
+
+    private void doGetCatlist(JSONArray response) throws JSONException {
+        Log.d("CATLIST", "TEST");
+        List<ArrayList<String>> cats = new ArrayList<>();
+
+        JSONArray catlistArray = response;
+        for (int i = 0; i < catlistArray.length(); i++) {
+            JSONObject cat = catlistArray.getJSONObject(i);
+            String catId = cat.getString("catId");
+            String picUrl = cat.getString("picUrl");
+            String lat = cat.getString("lat");
+            String lng = cat.getString("lng");
+            String name = cat.getString("name");
+            String petted = cat.getString("petted");
+            cats.add(new ArrayList<>(Arrays.asList(catId, picUrl, lat, lng, name, petted)));
+        }
+
+        catList = cats;
     }
 }
