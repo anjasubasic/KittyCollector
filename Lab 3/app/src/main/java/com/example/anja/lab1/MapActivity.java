@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -19,6 +20,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.Manifest;
 
@@ -48,6 +51,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,7 +64,7 @@ import java.util.List;
 
 //Used some of this code to handle location permissions: https://stackoverflow.com/questions/34582370/how-can-i-show-current-location-on-a-google-map-on-android-marshmallow/34582595#34582595
 public class MapActivity extends AppCompatActivity
-        implements OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener,
+        implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleApiClient.OnConnectionFailedListener,
         LocationListener, GoogleApiClient.ConnectionCallbacks {
 
     GoogleApiClient mGoogleApiClient;
@@ -68,7 +72,9 @@ public class MapActivity extends AppCompatActivity
     LocationRequest locationRequest;
     Location lastLocation;
     Marker meMarker;
-    List<ArrayList<String>> catList;
+    JSONArray catsJson;
+    ImageView catPicture;
+    TextView catName, catDistance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +84,10 @@ public class MapActivity extends AppCompatActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        catPicture = findViewById(R.id.catPicture);
+        catName = findViewById(R.id.catName);
+        catDistance = findViewById(R.id.catDistance);
     }
 
     @Override
@@ -102,7 +112,10 @@ public class MapActivity extends AppCompatActivity
                 LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                 Criteria criteria = new Criteria();
                 Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
-                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                LatLng latLng = new LatLng(43.7, -72.29);
+                if (location != null) {
+                    latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                }
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,18));
 
                 RequestCatLocations();
@@ -114,6 +127,7 @@ public class MapActivity extends AppCompatActivity
             buildGoogleApiClient();
             map.setMyLocationEnabled(true);
         }
+        map.setOnMarkerClickListener(this);
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -268,46 +282,99 @@ public class MapActivity extends AppCompatActivity
     private void addCatsToMap() {
         //TODO: Add icons to markers, fix bug with camera
 
-        for (int i = 0; i < catList.size(); i++) {
-            Double catLng = Double.parseDouble(catList.get(i).get(2));
-            Double catLon = Double.parseDouble(catList.get(i).get(3));
-            String catName = catList.get(i).get(4);
-            MarkerOptions markerOptions = new MarkerOptions();
-            LatLng latLng = new LatLng(catLng, catLon);
-            Boolean catPetted = Boolean.parseBoolean(catList.get(i).get(5));
-            markerOptions.position(latLng);
-            markerOptions.title(catName);
+        for (int i = 0; i < catsJson.length(); i++) {
+            try {
+                JSONObject cat = catsJson.getJSONObject(i);
+                MarkerOptions markerOptions = new MarkerOptions();
 
-            // NOTE for testing:
-            // To test if cats have been petted with cat 1:
-            // http://cs65.cs.dartmouth.edu/pat.pl?name=anja&password=anja&catid=1&lat=43.706838&lng=-72.287409
-            if (catPetted) {
-                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_gray));
-            }
-            else {
-                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_green));
-            }
+                String name = cat.getString("name");
+                String lat = cat.getString("lat");
+                String lng = cat.getString("lng");
+                String petted = cat.getString("petted");
 
-            map.addMarker(markerOptions);
+                LatLng latLng = new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
+                markerOptions.position(latLng);
+                markerOptions.title(name);
+
+                // NOTE for testing:
+                // To test if cats have been petted with cat 1:
+                // http://cs65.cs.dartmouth.edu/pat.pl?name=anja&password=anja&catid=1&lat=43.706838&lng=-72.287409
+                Boolean catPetted = Boolean.parseBoolean(petted);
+                if (catPetted) {
+                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_gray));
+                }
+                else {
+                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_green));
+                }
+
+                Marker marker = map.addMarker(markerOptions);
+                marker.setTag(cat);
+
+            } catch (JSONException e) {
+                Log.d("PARSE", "addCatsToMap: JSON parsing error");
+            }
         }
     }
 
     private void doGetCatlist(JSONArray response) throws JSONException {
         Log.d("CATLIST", "TEST");
-        List<ArrayList<String>> cats = new ArrayList<>();
-
-        JSONArray catlistArray = response;
-        for (int i = 0; i < catlistArray.length(); i++) {
-            JSONObject cat = catlistArray.getJSONObject(i);
-            String catId = cat.getString("catId");
-            String picUrl = cat.getString("picUrl");
-            String lat = cat.getString("lat");
-            String lng = cat.getString("lng");
-            String name = cat.getString("name");
-            String petted = cat.getString("petted");
-            cats.add(new ArrayList<>(Arrays.asList(catId, picUrl, lat, lng, name, petted)));
-        }
-
-        catList = cats;
+        catsJson = response;
     }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+//        double catLat = Integer.parseInt(catList.get(catId).get(CAT_LAT));
+//        double catLng = Integer.parseInt(catList.get(catId).get(CAT_LNG));
+        try {
+            JSONObject cat = new JSONObject(marker.getTag().toString());
+
+            catName.setText(cat.getString("name"));
+
+            // distance calculating part referenced from
+            // https://stackoverflow.com/questions/14394366/find-distance-between-two-points-on-map-using-google-map-api-v2
+            Double catLng = Double.parseDouble(cat.getString("lng"));
+            Double catLat = Double.parseDouble(cat.getString("lat"));
+            LatLng catLocation = new LatLng(catLat, catLng);
+            // TODO: Use actual location
+            LatLng myLocation = new LatLng(43.7, -72.29);
+            float[] results = new float[1];
+            Location.distanceBetween(catLocation.latitude, catLocation.longitude,
+                                 myLocation.latitude, myLocation.longitude, results);
+            catDistance.setText(String.valueOf(results[0]));
+            //TODO: Format string
+
+        } catch (JSONException e) {
+            Log.d("ERROR", "onMarkerClick: can't parse JSON");
+        }
+        return true;
+    }
+
+
+//    // Image loading from URL referenced from
+//    // https://stackoverflow.com/questions/2471935/how-to-load-an-imageview-by-url-in-android
+//    private class DownloadCatImage extends AsyncTask<String, Void, Bitmap> {
+//
+//        ImageView bmImage;
+//
+//        public DownloadCatImage(ImageView bmImage) {
+//            this.bmImage = bmImage;
+//        }
+//
+//        protected Bitmap doInBackground(String... urls) {
+//            String url = urls[0];
+//            Bitmap mIcon11 = null;
+//            try {
+//                InputStream in = new java.net.URL(url).openStream();
+//                mIcon11 = BitmapFactory.decodeStream(in);
+//            } catch (Exception e) {
+//                Log.e("Error", e.getMessage());
+//                e.printStackTrace();
+//            }
+//            return mIcon11;
+//        }
+//
+//        protected void onPostExecute(Bitmap result) {
+//            catPicture.setImageBitmap(result);
+//        }
+//    }
 }

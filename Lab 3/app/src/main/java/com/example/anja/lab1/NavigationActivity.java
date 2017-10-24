@@ -24,7 +24,7 @@ public class NavigationActivity extends AppCompatActivity {
         SharedPreferences sp = PreferenceManager
                 .getDefaultSharedPreferences(this);
 
-        Log.d("LOGIN", "onCreate: logged in? " + sp.getBoolean("logged in", false));
+//        Log.d("LOGIN", "onCreate: logged in? " + sp.getBoolean("logged in", false));
 
         if (sp.getBoolean("login", false) == true) {
             intent = new Intent(this, MainActivity.class);
