@@ -253,7 +253,7 @@ public class MapActivity extends AppCompatActivity
             // TODO: The following returns catlist for the easy mode. Still need to implement hard mode
             String url ="http://cs65.cs.dartmouth.edu/catlist.pl?name=";
             JsonArrayRequest jsObjRequest = new JsonArrayRequest (Request.Method.GET,
-                    url + username + "&password=" + password + "&mode=easy", null,
+                    url + username + "&password=" + password, null,
                     new Response.Listener<JSONArray>() {
                         @Override
                         public void onResponse(JSONArray response) {
@@ -337,7 +337,7 @@ public class MapActivity extends AppCompatActivity
             Double catLng = Double.parseDouble(cat.getString("lng"));
             Double catLat = Double.parseDouble(cat.getString("lat"));
             LatLng catLocation = new LatLng(catLat, catLng);
-            // TODO: Use actual locatio-am n
+            // TODO: Use actual location
             LatLng myLocation = new LatLng(43.7070, -72.2870);
             float[] results = new float[1];
             Location.distanceBetween(catLocation.latitude, catLocation.longitude,
