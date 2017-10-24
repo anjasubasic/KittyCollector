@@ -20,6 +20,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -75,6 +77,8 @@ public class MapActivity extends AppCompatActivity
     JSONArray catsJson;
     ImageView catPicture;
     TextView catName, catDistance;
+    Button petButton;
+    int catId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +92,11 @@ public class MapActivity extends AppCompatActivity
         catPicture = findViewById(R.id.catPicture);
         catName = findViewById(R.id.catName);
         catDistance = findViewById(R.id.catDistance);
+        petButton = findViewById(R.id.petButton);
+        petButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { onPetClicked(); }
+        });
     }
 
     @Override
@@ -279,40 +288,35 @@ public class MapActivity extends AppCompatActivity
             }
         }
 
-    private void addCatsToMap() {
+    private void addCatsToMap() throws JSONException {
         //TODO: Add icons to markers, fix bug with camera
 
         for (int i = 0; i < catsJson.length(); i++) {
-            try {
-                JSONObject cat = catsJson.getJSONObject(i);
-                MarkerOptions markerOptions = new MarkerOptions();
+            JSONObject cat = catsJson.getJSONObject(i);
+            MarkerOptions markerOptions = new MarkerOptions();
 
-                String name = cat.getString("name");
-                String lat = cat.getString("lat");
-                String lng = cat.getString("lng");
-                String petted = cat.getString("petted");
+            String name = cat.getString("name");
+            String lat = cat.getString("lat");
+            String lng = cat.getString("lng");
+            String petted = cat.getString("petted");
 
-                LatLng latLng = new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
-                markerOptions.position(latLng);
-                markerOptions.title(name);
+            LatLng latLng = new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
+            markerOptions.position(latLng);
+            markerOptions.title(name);
 
-                // NOTE for testing:
-                // To test if cats have been petted with cat 1:
-                // http://cs65.cs.dartmouth.edu/pat.pl?name=anja&password=anja&catid=1&lat=43.706838&lng=-72.287409
-                Boolean catPetted = Boolean.parseBoolean(petted);
-                if (catPetted) {
-                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_gray));
-                }
-                else {
-                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_green));
-                }
-
-                Marker marker = map.addMarker(markerOptions);
-                marker.setTag(cat);
-
-            } catch (JSONException e) {
-                Log.d("PARSE", "addCatsToMap: JSON parsing error");
+            // NOTE for testing:
+            // To test if cats have been petted with cat 1:
+            // http://cs65.cs.dartmouth.edu/pat.pl?name=anja&password=anja&catid=1&lat=43.706838&lng=-72.287409
+            Boolean catPetted = Boolean.parseBoolean(petted);
+            if (catPetted) {
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_gray));
             }
+            else {
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_green));
+            }
+
+            Marker marker = map.addMarker(markerOptions);
+            marker.setTag(cat);
         }
     }
 
@@ -323,12 +327,12 @@ public class MapActivity extends AppCompatActivity
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-//        double catLat = Integer.parseInt(catList.get(catId).get(CAT_LAT));
-//        double catLng = Integer.parseInt(catList.get(catId).get(CAT_LNG));
         try {
             JSONObject cat = new JSONObject(marker.getTag().toString());
 
+            catId = Integer.parseInt(cat.getString("catID"));
             catName.setText(cat.getString("name"));
+            new DownloadImageTask(catPicture).execute(cat.getString("picUrl"));
 
             // distance calculating part referenced from
             // https://stackoverflow.com/questions/14394366/find-distance-between-two-points-on-map-using-google-map-api-v2
@@ -343,38 +347,44 @@ public class MapActivity extends AppCompatActivity
             catDistance.setText(String.valueOf(results[0]));
             //TODO: Format string
 
+            //TODO: Set pet capability according to distance for hard mode
+
         } catch (JSONException e) {
             Log.d("ERROR", "onMarkerClick: can't parse JSON");
         }
         return true;
     }
 
+    // Image loading from URL referenced from
+    // https://stackoverflow.com/questions/2471935/how-to-load-an-imageview-by-url-in-android
+    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
 
-//    // Image loading from URL referenced from
-//    // https://stackoverflow.com/questions/2471935/how-to-load-an-imageview-by-url-in-android
-//    private class DownloadCatImage extends AsyncTask<String, Void, Bitmap> {
-//
-//        ImageView bmImage;
-//
-//        public DownloadCatImage(ImageView bmImage) {
-//            this.bmImage = bmImage;
-//        }
-//
-//        protected Bitmap doInBackground(String... urls) {
-//            String url = urls[0];
-//            Bitmap mIcon11 = null;
-//            try {
-//                InputStream in = new java.net.URL(url).openStream();
-//                mIcon11 = BitmapFactory.decodeStream(in);
-//            } catch (Exception e) {
-//                Log.e("Error", e.getMessage());
-//                e.printStackTrace();
-//            }
-//            return mIcon11;
-//        }
-//
-//        protected void onPostExecute(Bitmap result) {
-//            catPicture.setImageBitmap(result);
-//        }
-//    }
+        ImageView bmImage;
+
+        public DownloadImageTask(ImageView bmImage) {
+            this.bmImage = bmImage;
+        }
+
+        protected Bitmap doInBackground(String... urls) {
+            String url = urls[0];
+            Bitmap mIcon11 = null;
+            try {
+                InputStream in = new java.net.URL(url).openStream();
+                mIcon11 = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
+            return mIcon11;
+        }
+
+        protected void onPostExecute(Bitmap result) {
+            catPicture.setImageBitmap(result);
+        }
+    }
+
+    public void onPetClicked() {
+        Toast.makeText(getApplicationContext(), "Meow!",
+                Toast.LENGTH_SHORT).show();
+    }
 }
