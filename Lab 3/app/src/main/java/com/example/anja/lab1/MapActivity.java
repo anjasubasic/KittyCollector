@@ -117,7 +117,7 @@ public class MapActivity extends AppCompatActivity
     public void onMapReady(GoogleMap googleMap) {
 
         map = googleMap;
-        map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -130,7 +130,7 @@ public class MapActivity extends AppCompatActivity
                 if (location != null) {
                     latLng = new LatLng(location.getLatitude(), location.getLongitude());
                 }
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,18));
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,17));
 
                 RequestCatLocations();
 
