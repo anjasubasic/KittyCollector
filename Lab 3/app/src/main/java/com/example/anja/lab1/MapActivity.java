@@ -79,6 +79,7 @@ public class MapActivity extends AppCompatActivity
     TextView catName, catDistance;
     Button petButton;
     int catId;
+    String username, password;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +89,10 @@ public class MapActivity extends AppCompatActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        username = sp.getString("username", "");
+        password = sp.getString("password", "");
 
         catPicture = findViewById(R.id.catPicture);
         catName = findViewById(R.id.catName);
@@ -121,7 +126,7 @@ public class MapActivity extends AppCompatActivity
                 LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                 Criteria criteria = new Criteria();
                 Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
-                LatLng latLng = new LatLng(43.7, -72.29);
+                LatLng latLng = new LatLng(43.7070, -72.2870);
                 if (location != null) {
                     latLng = new LatLng(location.getLatitude(), location.getLongitude());
                 }
@@ -244,15 +249,11 @@ public class MapActivity extends AppCompatActivity
 
     // CAT LOCATION METHODS //
     private void RequestCatLocations() {
-            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-            String username = sp.getString("username", "");
-            String password = sp.getString("password", "");
-
             RequestQueue queue = Volley.newRequestQueue(this);
             // TODO: The following returns catlist for the easy mode. Still need to implement hard mode
             String url ="http://cs65.cs.dartmouth.edu/catlist.pl?name=";
             JsonArrayRequest jsObjRequest = new JsonArrayRequest (Request.Method.GET,
-                    url + username + "&password=" + password, null,
+                    url + username + "&password=" + password + "&mode=easy", null,
                     new Response.Listener<JSONArray>() {
                         @Override
                         public void onResponse(JSONArray response) {
@@ -277,8 +278,7 @@ public class MapActivity extends AppCompatActivity
         }
         else {
             try {
-                doGetCatlist(response);
-                addCatsToMap();
+                addCatsToMap(response);
             }
             catch (JSONException e){
                     Toast.makeText(getApplicationContext(),
@@ -288,7 +288,10 @@ public class MapActivity extends AppCompatActivity
             }
         }
 
-    private void addCatsToMap() throws JSONException {
+
+    private void addCatsToMap(JSONArray response) throws JSONException {
+        Log.d("CATLIST", "TEST");
+        catsJson = response;
         //TODO: Add icons to markers, fix bug with camera
 
         for (int i = 0; i < catsJson.length(); i++) {
@@ -320,17 +323,12 @@ public class MapActivity extends AppCompatActivity
         }
     }
 
-    private void doGetCatlist(JSONArray response) throws JSONException {
-        Log.d("CATLIST", "TEST");
-        catsJson = response;
-    }
-
     @Override
     public boolean onMarkerClick(Marker marker) {
         try {
             JSONObject cat = new JSONObject(marker.getTag().toString());
 
-            catId = Integer.parseInt(cat.getString("catID"));
+            catId = Integer.parseInt(cat.getString("catId"));
             catName.setText(cat.getString("name"));
             new DownloadImageTask(catPicture).execute(cat.getString("picUrl"));
 
@@ -339,8 +337,8 @@ public class MapActivity extends AppCompatActivity
             Double catLng = Double.parseDouble(cat.getString("lng"));
             Double catLat = Double.parseDouble(cat.getString("lat"));
             LatLng catLocation = new LatLng(catLat, catLng);
-            // TODO: Use actual location
-            LatLng myLocation = new LatLng(43.7, -72.29);
+            // TODO: Use actual locatio-am n
+            LatLng myLocation = new LatLng(43.7070, -72.2870);
             float[] results = new float[1];
             Location.distanceBetween(catLocation.latitude, catLocation.longitude,
                                  myLocation.latitude, myLocation.longitude, results);
@@ -384,7 +382,60 @@ public class MapActivity extends AppCompatActivity
     }
 
     public void onPetClicked() {
-        Toast.makeText(getApplicationContext(), "Meow!",
-                Toast.LENGTH_SHORT).show();
+        sendPetRequest();
+    }
+
+    private void sendPetRequest() {
+        String latitude, longitude;
+        RequestQueue queue = Volley.newRequestQueue(this);
+        if (lastLocation != null) {
+            latitude = Double.toString(lastLocation.getLatitude());
+            longitude = Double.toString(lastLocation.getLongitude());
+        } else {
+            latitude = "43.7070";
+            longitude = "-72.2870";
+        }
+        LatLng latLng = new LatLng(43.7070, -72.2870);
+        String url ="http://cs65.cs.dartmouth.edu/pat.pl?name=";
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest (Request.Method.GET,
+                url + username + "&password=" + password + "&catid=" + catId +
+                "&lat=" + latitude + "&lng=" + longitude,
+                null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        onPetRequest(response);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getApplicationContext(), "Error: " + error.toString(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+        queue.add(jsObjRequest);
+    }
+
+    private void onPetRequest(JSONObject response) {
+        Log.d("PET_RESULT", "onPetRequest: " + response.toString());
+        if (response == null) {
+            Toast.makeText(getApplicationContext(),
+                    R.string.noConnectionText, Toast.LENGTH_SHORT).show();
+        }
+        else {
+            try {
+                if (response.getString("status").equals("OK")) {
+                    Toast.makeText(getApplicationContext(), "Meow! I like you!",
+                            Toast.LENGTH_SHORT).show();
+                } else if (response.getString("status").equals("ERROR")) {
+                    Toast.makeText(getApplicationContext(),
+                            response.getString("reason"), Toast.LENGTH_SHORT).show();
+                }
+            } catch (JSONException e) {
+                Toast.makeText(getApplicationContext(),
+                        "Unable to parse response: " + response.toString(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }
