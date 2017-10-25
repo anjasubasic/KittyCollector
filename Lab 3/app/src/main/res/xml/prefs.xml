@@ -15,13 +15,13 @@
         android:layout="@layout/prefs_custom"/>
 
     <ListPreference
-        android:key="alert"
-        android:title="@string/alertLabel"
-        android:summary="@string/alertDescription"
+        android:key="update_frequency"
+        android:title="@string/updateLabel"
+        android:summary="@string/updateDescription"
         android:entries="@array/listArray"
         android:entryValues="@array/listValues"
         android:defaultValue="4"
-        android:dialogTitle="@string/alertLabel"
+        android:dialogTitle="@string/updateLabel"
         android:layout="@layout/prefs_custom"/>
 
     <SwitchPreference
