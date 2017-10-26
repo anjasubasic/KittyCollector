@@ -2,6 +2,7 @@ package com.example.anja.lab1;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -47,6 +48,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import com.squareup.picasso.Picasso;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -76,6 +79,7 @@ public class MapActivity extends AppCompatActivity
     String username, password;
     Marker lastClicked = null;
     Boolean lastClickedPet = false;
+    JSONObject cat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -339,10 +343,11 @@ public class MapActivity extends AppCompatActivity
 
             try {
                 if (marker.getTag() != null) {
-                    JSONObject cat = new JSONObject(marker.getTag().toString());
+                    cat = new JSONObject(marker.getTag().toString());
 
                     catId = Integer.parseInt(cat.getString("catId"));
                     catName.setText(cat.getString("name"));
+//                    Picasso.with(this).load(cat.getString("picUrl")).into(catPicture);
                     new DownloadImageTask(catPicture).execute(cat.getString("picUrl"));
 
                     // distance calculating part referenced from
@@ -412,11 +417,11 @@ public class MapActivity extends AppCompatActivity
             latitude = Double.toString(lastLocation.getLatitude());
             longitude = Double.toString(lastLocation.getLongitude());
         } else {
-            latitude = "43.7048";
-            longitude = "-72.2889";
+            latitude = "43.70315698";
+            longitude = "-72.29038673";
         }
-        Toast.makeText(getApplicationContext(), "Current location: " + latitude + " & " + longitude,
-                Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getApplicationContext(), "Current location: " + latitude + " & " + longitude,
+//                Toast.LENGTH_SHORT).show();
         String url ="http://cs65.cs.dartmouth.edu/pat.pl?name=";
         JsonObjectRequest jsObjRequest = new JsonObjectRequest (Request.Method.GET,
                 url + username + "&password=" + password + "&catid=" + catId +
@@ -425,6 +430,8 @@ public class MapActivity extends AppCompatActivity
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
+                        Toast.makeText(getApplicationContext(), "Meow!",
+                                Toast.LENGTH_SHORT).show();
                         onPetRequest(response);
                     }
                 }, new Response.ErrorListener() {
@@ -446,10 +453,13 @@ public class MapActivity extends AppCompatActivity
         else {
             try {
                 if (response.getString("status").equals("OK")) {
-                    Toast.makeText(getApplicationContext(), "Meow! I like you!",
-                            Toast.LENGTH_SHORT).show();
-                    //TODO: Move to Activity
-                    lastClicked.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.catmarker_petted));
+                    SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+                    SharedPreferences.Editor editor = sp.edit();
+                    editor.putString("catName", catName.getText().toString());
+                    editor.putString("catUrl", cat.getString("picUrl"));
+                    editor.commit();
+                    Intent intent = new Intent(this, SuccessActivity.class);
+                    startActivity(intent);
 
                 } else if (response.getString("status").equals("ERROR")) {
                     Toast.makeText(getApplicationContext(),
