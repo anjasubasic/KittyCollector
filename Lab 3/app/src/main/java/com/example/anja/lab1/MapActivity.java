@@ -2,7 +2,6 @@ package com.example.anja.lab1;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -44,7 +43,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -54,10 +52,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 
 /**
@@ -80,6 +74,8 @@ public class MapActivity extends AppCompatActivity
     Button petButton;
     int catId;
     String username, password;
+    Marker lastClicked = null;
+    Boolean lastClickedPet = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,7 +96,7 @@ public class MapActivity extends AppCompatActivity
         petButton = findViewById(R.id.petButton);
         petButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) { onPetClicked(); }
+            public void onClick(View v) { sendPetRequest(); }
         });
     }
 
@@ -126,7 +122,7 @@ public class MapActivity extends AppCompatActivity
                 LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                 Criteria criteria = new Criteria();
                 Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
-                LatLng latLng = new LatLng(43.7070, -72.2870);
+                LatLng latLng = new LatLng(43.7068, -72.2874);
                 if (location != null) {
                     latLng = new LatLng(location.getLatitude(), location.getLongitude());
                 }
@@ -136,6 +132,7 @@ public class MapActivity extends AppCompatActivity
 
             } else {
                 checkLocationPermission();
+                RequestCatLocations();
             }
         } else {
             buildGoogleApiClient();
@@ -312,10 +309,10 @@ public class MapActivity extends AppCompatActivity
             // http://cs65.cs.dartmouth.edu/pat.pl?name=anja&password=anja&catid=1&lat=43.706838&lng=-72.287409
             Boolean catPetted = Boolean.parseBoolean(petted);
             if (catPetted) {
-                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_gray));
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.catmarker_petted));
             }
             else {
-                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_green));
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.catmarker));
             }
 
             Marker marker = map.addMarker(markerOptions);
@@ -325,6 +322,18 @@ public class MapActivity extends AppCompatActivity
 
     @Override
     public boolean onMarkerClick(Marker marker) {
+        // change marker icon to indicate selected marker
+        // https://stackoverflow.com/questions/40840866/android-change-google-map-markers-icon-on-click
+        if (lastClicked != null) {
+            if(lastClickedPet) {
+                lastClicked.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.catmarker_petted));
+            } else {
+                lastClicked.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.catmarker));
+            }
+        }
+        marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.catmarker_selected));
+        lastClicked = marker;
+
         try {
             JSONObject cat = new JSONObject(marker.getTag().toString());
 
@@ -345,7 +354,17 @@ public class MapActivity extends AppCompatActivity
             catDistance.setText(String.valueOf(results[0]));
             //TODO: Format string
 
-            //TODO: Set pet capability according to distance for hard mode
+            petButton.setVisibility(View.VISIBLE);
+            if (cat.getBoolean("petted")) {
+                petButton.setAlpha(.5f);
+                petButton.setClickable(false);
+                lastClickedPet = true;
+
+            } else {
+                petButton.setAlpha(1f);
+                petButton.setClickable(true);
+                lastClickedPet = false;
+            }
 
         } catch (JSONException e) {
             Log.d("ERROR", "onMarkerClick: can't parse JSON");
@@ -381,10 +400,6 @@ public class MapActivity extends AppCompatActivity
         }
     }
 
-    public void onPetClicked() {
-        sendPetRequest();
-    }
-
     private void sendPetRequest() {
         String latitude, longitude;
         RequestQueue queue = Volley.newRequestQueue(this);
@@ -392,10 +407,11 @@ public class MapActivity extends AppCompatActivity
             latitude = Double.toString(lastLocation.getLatitude());
             longitude = Double.toString(lastLocation.getLongitude());
         } else {
-            latitude = "43.7070";
-            longitude = "-72.2870";
+            latitude = "43.7048";
+            longitude = "-72.2889";
         }
-        LatLng latLng = new LatLng(43.7070, -72.2870);
+        Toast.makeText(getApplicationContext(), "Current location: " + latitude + " & " + longitude,
+                Toast.LENGTH_SHORT).show();
         String url ="http://cs65.cs.dartmouth.edu/pat.pl?name=";
         JsonObjectRequest jsObjRequest = new JsonObjectRequest (Request.Method.GET,
                 url + username + "&password=" + password + "&catid=" + catId +
@@ -427,6 +443,9 @@ public class MapActivity extends AppCompatActivity
                 if (response.getString("status").equals("OK")) {
                     Toast.makeText(getApplicationContext(), "Meow! I like you!",
                             Toast.LENGTH_SHORT).show();
+                    //TODO: Move to Activity
+                    lastClicked.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.catmarker_petted));
+
                 } else if (response.getString("status").equals("ERROR")) {
                     Toast.makeText(getApplicationContext(),
                             response.getString("reason"), Toast.LENGTH_SHORT).show();

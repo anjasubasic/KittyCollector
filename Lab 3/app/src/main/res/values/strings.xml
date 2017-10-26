@@ -53,8 +53,8 @@
 
     <!-- Map activity strings -->
     <string name="petButton">Pet</string>
-    <string name="catNamePlaceholder">Peach</string>
-    <string name="catDistPlaceholder">0.14 mi</string>
+    <string name="catNamePlaceholder">Click a marker!</string>
+    <string name="catDistPlaceholder">find the cats!</string>
     <string name="distanceUnits"> m away</string>
 
     <!-- TODO: Remove or change this placeholder text -->
