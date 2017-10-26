@@ -326,50 +326,53 @@ public class MapActivity extends AppCompatActivity
     public boolean onMarkerClick(Marker marker) {
         // change marker icon to indicate selected marker
         // https://stackoverflow.com/questions/40840866/android-change-google-map-markers-icon-on-click
-        if (lastClicked != null) {
-            if(lastClickedPet) {
-                lastClicked.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.catmarker_petted));
-            } else {
-                lastClicked.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.catmarker));
+        if (!marker.equals(meMarker)) {
+            if (lastClicked != null) {
+                if (lastClickedPet) {
+                    lastClicked.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.catmarker_petted));
+                } else {
+                    lastClicked.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.catmarker));
+                }
             }
-        }
-        marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.catmarker_selected));
-        lastClicked = marker;
+            marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.catmarker_selected));
+            lastClicked = marker;
 
-        try {
-            JSONObject cat = new JSONObject(marker.getTag().toString());
+            try {
+                if (marker.getTag() != null) {
+                    JSONObject cat = new JSONObject(marker.getTag().toString());
 
-            catId = Integer.parseInt(cat.getString("catId"));
-            catName.setText(cat.getString("name"));
-            new DownloadImageTask(catPicture).execute(cat.getString("picUrl"));
+                    catId = Integer.parseInt(cat.getString("catId"));
+                    catName.setText(cat.getString("name"));
+                    new DownloadImageTask(catPicture).execute(cat.getString("picUrl"));
 
-            // distance calculating part referenced from
-            // https://stackoverflow.com/questions/14394366/find-distance-between-two-points-on-map-using-google-map-api-v2
-            Double catLng = Double.parseDouble(cat.getString("lng"));
-            Double catLat = Double.parseDouble(cat.getString("lat"));
-            LatLng catLocation = new LatLng(catLat, catLng);
-            // TODO: Use actual location
-            LatLng myLocation = new LatLng(43.7070, -72.2870);
-            float[] results = new float[1];
-            Location.distanceBetween(catLocation.latitude, catLocation.longitude,
-                                 myLocation.latitude, myLocation.longitude, results);
-            catDistance.setText(String.valueOf(results[0]));
-            //TODO: Format string
+                    // distance calculating part referenced from
+                    // https://stackoverflow.com/questions/14394366/find-distance-between-two-points-on-map-using-google-map-api-v2
+                    Double catLng = Double.parseDouble(cat.getString("lng"));
+                    Double catLat = Double.parseDouble(cat.getString("lat"));
+                    LatLng catLocation = new LatLng(catLat, catLng);
+                    // TODO: Use actual location
+                    LatLng myLocation = new LatLng(43.7070, -72.2870);
+                    float[] results = new float[1];
+                    Location.distanceBetween(catLocation.latitude, catLocation.longitude,
+                            myLocation.latitude, myLocation.longitude, results);
+                    catDistance.setText(String.valueOf(results[0]));
+                    //TODO: Format string
 
-            petButton.setVisibility(View.VISIBLE);
-            if (cat.getBoolean("petted")) {
-                petButton.setAlpha(.5f);
-                petButton.setClickable(false);
-                lastClickedPet = true;
+                    petButton.setVisibility(View.VISIBLE);
+                    if (cat.getBoolean("petted")) {
+                        petButton.setAlpha(.5f);
+                        petButton.setClickable(false);
+                        lastClickedPet = true;
 
-            } else {
-                petButton.setAlpha(1f);
-                petButton.setClickable(true);
-                lastClickedPet = false;
+                    } else {
+                        petButton.setAlpha(1f);
+                        petButton.setClickable(true);
+                        lastClickedPet = false;
+                    }
+                }
+            } catch (JSONException e) {
+                Log.d("ERROR", "onMarkerClick: can't parse JSON");
             }
-
-        } catch (JSONException e) {
-            Log.d("ERROR", "onMarkerClick: can't parse JSON");
         }
         return true;
     }
