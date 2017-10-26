@@ -152,9 +152,11 @@ public class MapActivity extends AppCompatActivity
 
     @Override
     public void onConnected(Bundle bundle) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        String update_frequency = sp.getString("update_frequency", "");
         locationRequest = new LocationRequest();
-        locationRequest.setInterval(1000);
-        locationRequest.setFastestInterval(1000);
+        locationRequest.setInterval(Integer.parseInt(update_frequency));
+        locationRequest.setFastestInterval(Integer.parseInt(update_frequency));
         locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
