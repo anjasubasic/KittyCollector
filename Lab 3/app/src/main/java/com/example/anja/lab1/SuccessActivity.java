@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -43,19 +44,27 @@ public class SuccessActivity extends AppCompatActivity {
         catPicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                final Toast toast;
                 if (numPet < 1) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.meow),
-                            Toast.LENGTH_SHORT).show();
-                    numPet++;
-                } else if (numPet < 3) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.purr),
-                            Toast.LENGTH_SHORT).show();
-                    numPet++;
+                    toast = Toast.makeText(getApplicationContext(), getString(R.string.meow),
+                            Toast.LENGTH_SHORT);
+                } else if (numPet < 5) {
+                    toast = Toast.makeText(getApplicationContext(), getString(R.string.purr),
+                            Toast.LENGTH_SHORT);
                 } else {
-                    Toast.makeText(getApplicationContext(), getString(R.string.growl),
-                            Toast.LENGTH_SHORT).show();
-                    numPet++;
+                    toast = Toast.makeText(getApplicationContext(), getString(R.string.growl),
+                            Toast.LENGTH_SHORT);
                 }
+
+                numPet++;
+                toast.show();
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        toast.cancel();
+                    }
+                }, 1000);
             }
         });
 
