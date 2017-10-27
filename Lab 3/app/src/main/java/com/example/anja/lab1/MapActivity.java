@@ -303,7 +303,6 @@ public class MapActivity extends AppCompatActivity
             }
         }
 
-
     private void addCatsToMap(JSONArray response) throws JSONException {
         catMarkers = new ArrayList<>();
         Log.d("CATLIST", "TEST");
@@ -352,9 +351,18 @@ public class MapActivity extends AppCompatActivity
                 Marker catMarker = catMarkers.get(i);
                 LatLng catMarkerPosition = catMarker.getPosition();
                 float[] results = new float[1];
+                Double latitude, longitude;
+
+                if (lastLocation != null) {
+                    latitude = lastLocation.getLatitude();
+                    longitude = lastLocation.getLongitude();
+                } else {
+                    latitude = 43.70315698;
+                    longitude = -72.29038673;
+                }
 
                 Location.distanceBetween(catMarkerPosition.latitude, catMarkerPosition.longitude,
-                        lastLocation.getLatitude(), lastLocation.getLongitude(), results);
+                        latitude, longitude, results);
 
                 float distanceFromCat = results[0];
 
