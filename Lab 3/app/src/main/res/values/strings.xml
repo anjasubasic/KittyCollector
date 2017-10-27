@@ -39,12 +39,12 @@
     <string name="usernamePlaceholder">"@username"</string>
     <string name="signOutButton">Sign Out</string>
     <string name="preferencesPartLabel">Preferences</string>
-    <string name="aboutLabel">About</string>
-    <string name="aboutDescription">Edit your bio</string>
     <string name="updateLabel">Location Update</string>
-    <string name="updateDescription">Choose how often you update your location</string>
-    <string name="difficultyLabel">Difficulty</string>
-    <string name="difficultyDescription">Initiate HARD MODE!</string>
+    <string name="updateDescription">Choose how often your location is updated</string>
+    <string name="difficultyLabel">Initiate HARD MODE!</string>
+    <string name="difficultyDescription">(Don\'t forget to reset)</string>
+    <string name="radiusLabel">Visibility Radius</string>
+    <string name="radiusDescription">Set how far you can see the kitties</string>
     <string name="gameSettings">Cat List</string>
 
     <!-- Play tab strings -->

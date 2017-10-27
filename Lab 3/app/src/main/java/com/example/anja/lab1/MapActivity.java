@@ -420,11 +420,11 @@ public class MapActivity extends AppCompatActivity
         String latitude, longitude;
         RequestQueue queue = Volley.newRequestQueue(this);
         if (lastLocation != null) {
-//            latitude = Double.toString(lastLocation.getLatitude());
-//            longitude = Double.toString(lastLocation.getLongitude());
+            latitude = Double.toString(lastLocation.getLatitude());
+            longitude = Double.toString(lastLocation.getLongitude());
             // uncomment this to pet Sherlock (may need to reset list for him to show up)
-            latitude = "43.70315698";
-            longitude = "-72.29038673";
+//            latitude = "43.70315698";
+//            longitude = "-72.29038673";
         } else {
             latitude = "43.70315698";
             longitude = "-72.29038673";

@@ -8,18 +8,12 @@
     <!--<PreferenceCategory-->
         <!--android:title="@string/preferencesPartLabel">-->
 
-    <EditTextPreference
-        android:key="bio"
-        android:title="@string/aboutLabel"
-        android:summary="@string/aboutDescription"
-        android:layout="@layout/prefs_custom"/>
-
     <ListPreference
         android:key="update_frequency"
         android:title="@string/updateLabel"
         android:summary="@string/updateDescription"
-        android:entries="@array/listArray"
-        android:entryValues="@array/listValues"
+        android:entries="@array/frequencyListArray"
+        android:entryValues="@array/frequencyListValues"
         android:defaultValue="1000"
         android:dialogTitle="@string/updateLabel"
         android:layout="@layout/prefs_custom"/>
@@ -28,6 +22,16 @@
         android:key="hard"
         android:summary="@string/difficultyDescription"
         android:title="@string/difficultyLabel"
+        android:layout="@layout/prefs_custom"/>
+
+    <ListPreference
+        android:key="cat_radius"
+        android:title="@string/radiusLabel"
+        android:summary="@string/radiusDescription"
+        android:entries="@array/radiusListArray"
+        android:entryValues="@array/radiusListValues"
+        android:defaultValue="1000"
+        android:dialogTitle="@string/radiusLabel"
         android:layout="@layout/prefs_custom"/>
 
 </PreferenceScreen>
