@@ -358,8 +358,8 @@ public class MapActivity extends AppCompatActivity
                 if (distanceFromCat < catRadius) {
                     catMarker.setVisible(true);
                 } else {
-                    catMarker.setIcon(BitmapDescriptorFactory.defaultMarker());
-                    //catMarker.setVisible(false);
+                    //catMarker.setIcon(BitmapDescriptorFactory.defaultMarker()); uncomment to see marker change if cat is too far away
+                    catMarker.setVisible(false);
                 }
             }
         }
