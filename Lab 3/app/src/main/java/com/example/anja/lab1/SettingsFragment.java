@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +22,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -31,6 +34,8 @@ import org.json.JSONObject;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Anja on 9/24/2017.
@@ -40,7 +45,9 @@ import java.io.IOException;
 public class SettingsFragment extends android.support.v4.app.DialogFragment {
     private TextView fullnameTxt, usernameTxt;
     private ImageView profilePhoto;
-    private Button resetButton;
+    private Button resetButton, passwordButton;
+    int requestCode = 123;
+    private Fragment fragment;
 
     @Nullable
     @Override
@@ -51,13 +58,26 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         fullnameTxt = view.findViewById(R.id.fullnameText);
         usernameTxt = view.findViewById(R.id.usernameText);
         Button signOutButton = view.findViewById(R.id.signOutButton);
+        passwordButton = view.findViewById(R.id.pwdChangeButton);
         resetButton = view.findViewById(R.id.reset);
+        fragment = this;
 
         setProfile();
         signOutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) { onSignOutClicked(); }
         });
+
+        passwordButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager manager = getFragmentManager();
+                PasswordChangeDialog myDialog = new PasswordChangeDialog();
+                myDialog.setTargetFragment(fragment, requestCode);
+                myDialog.show(manager, "ChangePasswordDialog");
+            }
+        });
+
         resetButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) { onrResetClicked(); }
@@ -69,6 +89,15 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         transaction.commit();
 
         return view;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == ConfirmPasswordDialog.requestCode) {
+            String newPassword = PasswordChangeDialog.dialogPassword;
+            String currPassword = PasswordChangeDialog.currentPassword;
+            updatePassword(currPassword, newPassword);
+        }
     }
 
     public static class PrefsFragment extends PreferenceFragment {
@@ -113,7 +142,6 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
 
     // OnSignOutClicked: Close main activity, clear back stack and restart the login activity
     private void onSignOutClicked() {
-        Log.d("STATE", "onSignOutClicked");
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         SharedPreferences.Editor editor = sp.edit();
         if(!sp.getBoolean("remember", false)) {
@@ -176,6 +204,57 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
                             Toast.LENGTH_SHORT).show();
                 }
             });
+        queue.add(jsObjRequest);
+    }
+
+    public void updatePassword(String currentPass, final String newPass) {
+        String url = "http://cs65.cs.dartmouth.edu/changepass.pl?name=";
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String username = sp.getString("username", "");
+
+        RequestQueue queue = Volley.newRequestQueue(this.getContext());
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest (Request.Method.GET,
+                url + username + "&password=" + currentPass + "&newpass=" + newPass,
+                null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        if (response == null) {
+                            Toast.makeText(getActivity(),
+                                    R.string.noConnectionText, Toast.LENGTH_SHORT).show();
+                        } else {
+                            try {
+                                if (response.getString("status").equals("OK")) {
+                                    Toast.makeText(getActivity(), "Password changed",
+                                            Toast.LENGTH_SHORT).show();
+                                    // don't forget to save new password to shared preferences!!
+                                    SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                                    SharedPreferences.Editor editor = sp.edit();
+                                    editor.putString("password", newPass);
+                                    editor.commit();
+                                } else {
+                                    if (response.getString("code").equals("AUTH_FAIL")) {
+                                        Toast.makeText(getActivity(),
+                                                response.getString("error"), Toast.LENGTH_LONG).show();
+                                    } else if (response.getString("status").equals("ERROR")) {
+                                        Toast.makeText(getActivity(),
+                                                response.getString("error"), Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                            } catch (JSONException e) {
+                                Toast.makeText(getActivity(),
+                                        "Unable to parse response: " + response.toString(),
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getActivity(), "Error: " + error.toString(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
         queue.add(jsObjRequest);
     }
 }

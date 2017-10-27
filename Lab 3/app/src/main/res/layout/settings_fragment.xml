@@ -59,12 +59,26 @@
                         android:text="@string/usernamePlaceholder" />
                 </LinearLayout>
 
-                <Button
-                    android:id="@+id/signOutButton"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/signOutButton"
-                    android:theme="@style/MyButton" />
+                    android:orientation="vertical">
+
+                    <Button
+                        android:id="@+id/signOutButton"
+                        android:layout_width="100dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/signOutButton"
+                        android:theme="@style/MyButton" />
+
+                    <Button
+                        android:id="@+id/pwdChangeButton"
+                        android:layout_width="100dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/changePwdButton"
+                        android:theme="@style/MyButton" />
+
+                </LinearLayout>
             </LinearLayout>
 
         </LinearLayout>
@@ -78,8 +92,9 @@
 
             <TextView
                 style="@style/SectionTitle"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="@string/gameSettings" />
 
             <Button

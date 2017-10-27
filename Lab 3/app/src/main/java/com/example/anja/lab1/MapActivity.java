@@ -420,11 +420,11 @@ public class MapActivity extends AppCompatActivity
         String latitude, longitude;
         RequestQueue queue = Volley.newRequestQueue(this);
         if (lastLocation != null) {
-            latitude = Double.toString(lastLocation.getLatitude());
-            longitude = Double.toString(lastLocation.getLongitude());
+//            latitude = Double.toString(lastLocation.getLatitude());
+//            longitude = Double.toString(lastLocation.getLongitude());
             // uncomment this to pet Sherlock (may need to reset list for him to show up)
-//            latitude = "43.70315698";
-//            longitude = "-72.29038673";
+            latitude = "43.70315698";
+            longitude = "-72.29038673";
         } else {
             latitude = "43.70315698";
             longitude = "-72.29038673";
@@ -460,8 +460,6 @@ public class MapActivity extends AppCompatActivity
         else {
             try {
                 if (response.getString("status").equals("OK")) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.meow),
-                            Toast.LENGTH_SHORT).show();
                     SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
                     SharedPreferences.Editor editor = sp.edit();
                     editor.putString("catName", catName.getText().toString());
@@ -469,7 +467,6 @@ public class MapActivity extends AppCompatActivity
                     editor.commit();
                     Intent intent = new Intent(this, SuccessActivity.class);
                     startActivity(intent);
-
                 } else if (response.getString("status").equals("ERROR")) {
                     Toast.makeText(getApplicationContext(),
                             response.getString("reason"), Toast.LENGTH_SHORT).show();

@@ -39,6 +39,4 @@
 
     </LinearLayout>
 
-    <View style="@style/Divider" />
-
 </LinearLayout>
