@@ -71,7 +71,7 @@ public class MapActivity extends AppCompatActivity
     GoogleMap map;
     LocationRequest locationRequest;
     Location lastLocation;
-    Marker meMarker;
+    Marker meMarker, currentCatMarker;
     JSONArray catsJson;
     ImageView catPicture;
     TextView catName, catDistance;
@@ -366,11 +366,22 @@ public class MapActivity extends AppCompatActivity
 
                 float distanceFromCat = results[0];
 
+                // update cat distance when location is updated
+                if (catMarker.equals(currentCatMarker)) {
+                    catDistance.setText(Float.toString(distanceFromCat));
+                }
+
                 if (distanceFromCat < Integer.parseInt(catRadius)) {
                     catMarker.setVisible(true);
                 } else {
                     //catMarker.setIcon(BitmapDescriptorFactory.defaultMarker()); uncomment to see marker change if cat is too far away
                     catMarker.setVisible(false);
+                    if (catMarker.equals(currentCatMarker)) {
+                        catName.setText(R.string.catNamePlaceholder);
+                        catDistance.setText(R.string.catDistPlaceholder);
+                        catPicture.setImageResource(R.drawable.click);
+                        petButton.setVisibility(View.INVISIBLE);
+                    }
                 }
             }
         }
@@ -381,6 +392,7 @@ public class MapActivity extends AppCompatActivity
         // change marker icon to indicate selected marker
         // https://stackoverflow.com/questions/40840866/android-change-google-map-markers-icon-on-click
         if (!marker.equals(meMarker)) {
+            currentCatMarker = marker;
             if (lastClicked != null) {
                 if (lastClickedPet) {
                     lastClicked.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.catmarker_petted));
