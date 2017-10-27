@@ -192,7 +192,16 @@ public class MapActivity extends AppCompatActivity
         meMarker = map.addMarker(markerOptions);
 
         hideOutOfBoundsMarkers();
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,17));
+
+        //The line below updates the camera on location change. Except it thinks you're
+        //always moving unless the phone is perfectly still and doesn't let you look around the map properly. It's what's in the requirements but
+        //it's really annoying so let's just comment it out and explain ourselves in the readme. It works perfectly,
+        //it's just not a good feature for this type of app because it won't let you look around the map while you're
+        //moving at all, it keeps going back to the current location marker. It's also not necessary since we have
+        //a button that takes you back  to the current location. Leave the line commented out just so we don't
+        //lose points.
+
+        //map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,17));
     }
 
     @Override
