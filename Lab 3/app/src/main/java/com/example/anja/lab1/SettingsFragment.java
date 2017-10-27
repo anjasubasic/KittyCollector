@@ -230,12 +230,10 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
             json.put("cat_radius", sp.getString("cat_radius", "500"));
         }
         catch(JSONException e){
-            Log.d("JSON", "Invalid JSON: " + e.toString());
             Toast.makeText(getActivity().getApplicationContext(),
                     "Invalid JSON" + e.toString(), Toast.LENGTH_LONG).show();
             return null;
         }
-        Log.d("JSON", json.toString());
         return json;
     }
 

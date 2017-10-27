@@ -170,7 +170,6 @@ public class RegisterAccountFragment extends Fragment {
     // onProfileClicked: send image capture intent to the camera
     // NOTE: some code has been taken from the camera example discussed in class.
     public void onProfileClicked() {
-        Log.d("STATE", "onProfileClicked");
         // TODO: implement front-facing camera
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
@@ -193,7 +192,6 @@ public class RegisterAccountFragment extends Fragment {
 
     // onSaveClicked: save data to sharedPreferences and close application
     public void onSaveClicked() {
-        Log.d("STATE", "onSaveClicked");
         postUserInfo();
         // Supposed to automatically log the user in and take them to the main activity.
         // TODO: Fix - Clicking the back button from here closes the app.
@@ -305,7 +303,6 @@ public class RegisterAccountFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         Log.d("STATE", "onSaveState");
-
         if (croppedUri != null) {
             outState.putParcelable(URI_STATE_KEY, croppedUri);
         }
@@ -556,7 +553,6 @@ public class RegisterAccountFragment extends Fragment {
             json.put("photo", "");
         }
         catch(JSONException e){
-            Log.d("JSON", "Invalid JSON: " + e.toString());
             Toast.makeText(getActivity().getApplicationContext(),
                     "Invalid JSON" + e.toString(), Toast.LENGTH_LONG).show();
             return null;

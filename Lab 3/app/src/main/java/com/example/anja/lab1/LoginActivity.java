@@ -169,13 +169,11 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void getError(JSONObject response) throws JSONException {
-        Log.d("LOGIN", "getError: ");
         Toast.makeText(getApplicationContext(),
                 "Error: " + response.getString("error"), Toast.LENGTH_SHORT).show();
     }
 
     private void doLogIn(JSONObject response) throws JSONException {
-        Log.d("LOGIN", "doLogIn: ");
         // save user information from response
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sp.edit();
