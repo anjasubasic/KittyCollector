@@ -158,7 +158,7 @@ public class MapActivity extends AppCompatActivity
     @Override
     public void onConnected(Bundle bundle) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        String update_frequency = sp.getString("update_frequency", "");
+        String update_frequency = sp.getString("update_frequency", "1000");
         locationRequest = new LocationRequest();
         locationRequest.setInterval(Integer.parseInt(update_frequency));
         locationRequest.setFastestInterval(Integer.parseInt(update_frequency));
