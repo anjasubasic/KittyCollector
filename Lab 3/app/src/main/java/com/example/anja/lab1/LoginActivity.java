@@ -182,6 +182,7 @@ public class LoginActivity extends AppCompatActivity {
         editor.putBoolean("login", true);
         editor.putString("username", response.getString("name"));
         editor.putString("password", response.getString("password"));
+        editor.putBoolean("freshLogin", true);
         editor.putString("loginResponse", response.toString());
         editor.commit();
 

@@ -350,21 +350,20 @@ public class MapActivity extends AppCompatActivity
 
                 Marker catMarker = catMarkers.get(i);
                 LatLng catMarkerPosition = catMarker.getPosition();
-                float[] results = new float[1];
-                Double latitude, longitude;
 
+                Location catLocation = new Location("");
+                catLocation.setLatitude(catMarkerPosition.latitude);
+                catLocation.setLongitude(catMarkerPosition.longitude);
+
+                float distanceFromCat;
                 if (lastLocation != null) {
-                    latitude = lastLocation.getLatitude();
-                    longitude = lastLocation.getLongitude();
+                    distanceFromCat = lastLocation.distanceTo(catLocation);
                 } else {
-                    latitude = 43.70315698;
-                    longitude = -72.29038673;
+                    Location placeholderLocation = new Location("");
+                    placeholderLocation.setLatitude(43.70315698);
+                    placeholderLocation.setLongitude(-72.29038673);
+                    distanceFromCat = placeholderLocation.distanceTo(catLocation);
                 }
-
-                Location.distanceBetween(catMarkerPosition.latitude, catMarkerPosition.longitude,
-                        latitude, longitude, results);
-
-                float distanceFromCat = results[0];
 
                 // update cat distance when location is updated
                 if (catMarker.equals(currentCatMarker)) {
@@ -412,17 +411,21 @@ public class MapActivity extends AppCompatActivity
 //                    Picasso.with(this).load(cat.getString("picUrl")).into(catPicture);
                     new DownloadImageTask(catPicture).execute(cat.getString("picUrl"));
 
-                    // distance calculating part referenced from
-                    // https://stackoverflow.com/questions/14394366/find-distance-between-two-points-on-map-using-google-map-api-v2
-                    Double catLng = Double.parseDouble(cat.getString("lng"));
-                    Double catLat = Double.parseDouble(cat.getString("lat"));
-                    LatLng catLocation = new LatLng(catLat, catLng);
-                    // TODO: Use actual location
-                    LatLng myLocation = new LatLng(43.7070, -72.2870);
-                    float[] results = new float[1];
-                    Location.distanceBetween(catLocation.latitude, catLocation.longitude,
-                            myLocation.latitude, myLocation.longitude, results);
-                    catDistance.setText(String.valueOf(results[0]));
+                    Location catLocation = new Location("");
+                    catLocation.setLatitude(Double.parseDouble(cat.getString("lat")));
+                    catLocation.setLongitude(Double.parseDouble(cat.getString("lng")));
+
+                    float distanceFromCat;
+                    if (lastLocation != null) {
+                        distanceFromCat = lastLocation.distanceTo(catLocation);
+                    } else {
+                        Location placeholderLocation = new Location("");
+                        placeholderLocation.setLatitude(43.70315698);
+                        placeholderLocation.setLongitude(-72.29038673);
+                        distanceFromCat = placeholderLocation.distanceTo(catLocation);
+                    }
+                    Log.d("DISTANCE", "onMarkerClick: " + distanceFromCat);
+                    catDistance.setText(Float.toString(distanceFromCat));
                     //TODO: Format string
 
                     petButton.setVisibility(View.VISIBLE);
@@ -476,11 +479,11 @@ public class MapActivity extends AppCompatActivity
         String latitude, longitude;
         RequestQueue queue = Volley.newRequestQueue(this);
         if (lastLocation != null) {
-//            latitude = Double.toString(lastLocation.getLatitude());
-//            longitude = Double.toString(lastLocation.getLongitude());
+            latitude = Double.toString(lastLocation.getLatitude());
+            longitude = Double.toString(lastLocation.getLongitude());
             // uncomment this to pet Sherlock (may need to reset list for him to show up)
-            latitude = "43.70315698";
-            longitude = "-72.29038673";
+//            latitude = "43.70315698";
+//            longitude = "-72.29038673";
         } else {
             latitude = "43.70315698";
             longitude = "-72.29038673";

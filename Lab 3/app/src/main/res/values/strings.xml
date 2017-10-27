@@ -53,7 +53,7 @@
     <!-- Play tab strings -->
     <string name="playButton">Let\'s Meow!</string>
     <string name="helloMessage">Hi, player!</string>
-    <string name="scoreTrack">You have befriended 0 cats.</string>
+    <string name="scoreTrack">You have 0 cats waiting!</string>
 
     <!-- Map activity strings -->
     <string name="petButton">Pet</string>

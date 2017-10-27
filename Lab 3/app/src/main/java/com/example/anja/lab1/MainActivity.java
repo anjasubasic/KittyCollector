@@ -45,16 +45,19 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadPreferences() {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = sp.edit();
-        try {
-            JSONObject loginResponse = new JSONObject(sp.getString("loginResponse", ""));
-            editor.putString("full_name", loginResponse.getString("full_name"));
-            editor.putString("update_frequency", loginResponse.getString("update_frequency"));
-            editor.putBoolean("hard", loginResponse.getBoolean("hard"));
-            editor.putString("cat_radius", loginResponse.getString("cat_radius"));
-            editor.commit();
-        } catch (JSONException e) {
-            Log.d("PREF_UPDATE", "loadPreferences: Unable to parse response");
+        if (sp.getBoolean("freshLogin", false)) {
+            SharedPreferences.Editor editor = sp.edit();
+            try {
+                JSONObject loginResponse = new JSONObject(sp.getString("loginResponse", ""));
+                editor.putString("full_name", loginResponse.getString("full_name"));
+                editor.putString("update_frequency", loginResponse.getString("update_frequency"));
+                editor.putBoolean("hard", loginResponse.getBoolean("hard"));
+                editor.putString("cat_radius", loginResponse.getString("cat_radius"));
+                editor.putBoolean("freshLogin", false);
+                editor.commit();
+            } catch (JSONException e) {
+                Log.d("PREF_UPDATE", "loadPreferences: Unable to parse response");
+            }
         }
     }
 }
