@@ -20,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -141,6 +142,7 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
     private void onSignOutClicked() {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         SharedPreferences.Editor editor = sp.edit();
+        postUserInfo();
         if(!sp.getBoolean("remember", false)) {
             editor.clear();
             getContext().deleteFile(getString(R.string.profileFileName));
@@ -162,6 +164,79 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         getActivity().finish();
+    }
+
+    // postUserInfo: Volley POST request, referenced from class example
+    public void postUserInfo() {
+        String url = "http://cs65.cs.dartmouth.edu/profile.pl";
+        RequestQueue queue = Volley.newRequestQueue(this.getContext());
+        JSONObject userInfo = buildJSONObject();
+        Log.d("SIGN_OUT", "postUserInfo: " + userInfo.toString());
+
+        if (userInfo == null) { return; }
+        else {
+            // Request a string response from the provided URL.
+            JsonObjectRequest joRequest = new JsonObjectRequest(url,  // POST is presumed
+                    userInfo,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            postResultsToUI(response.toString());
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    postResultsToUI("Error" + error.toString());
+                }
+            }) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    {
+                        Map<String, String> params = new HashMap<String, String>();
+                        // params.put("Accept", "application/json");
+                        params.put("Accept-Encoding", "identity");
+                        // params.put("Content-Type", "application/json");
+                        return params;
+                    }
+                }
+            };
+            queue.add(joRequest);
+        }
+    }
+
+    private void postResultsToUI(final String res) {
+        if (res == null)
+            Toast.makeText(getActivity().getApplicationContext(), getString(R.string.noConnectionText),
+                    Toast.LENGTH_SHORT).show();
+//        else
+//            Toast.makeText(getActivity().getApplicationContext(), res,
+//                    Toast.LENGTH_SHORT).show();
+    }
+
+    private JSONObject buildJSONObject(){
+        JSONObject json = new JSONObject();
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        Log.d("REQUEST", "buildJSONObject: " + sp.getString("loginResponse", ""));
+        try {
+            JSONObject loginResponse = new JSONObject(sp.getString("loginResponse", ""));
+            // things from the original login
+            json.put("name", sp.getString("username", ""));
+            json.put( "password", sp.getString("password", ""));
+            json.put("full_name", loginResponse.get("full_name"));
+            json.put("photo", loginResponse.get("photo"));
+            // Add settings
+            json.put("update_frequency", sp.getString("update_frequency", "1000"));
+            json.put("hard", sp.getBoolean("hard", false));
+            json.put("cat_radius", sp.getString("cat_radius", "500"));
+        }
+        catch(JSONException e){
+            Log.d("JSON", "Invalid JSON: " + e.toString());
+            Toast.makeText(getActivity().getApplicationContext(),
+                    "Invalid JSON" + e.toString(), Toast.LENGTH_LONG).show();
+            return null;
+        }
+        Log.d("JSON", json.toString());
+        return json;
     }
 
     private void onrResetClicked() {

@@ -180,9 +180,9 @@ public class LoginActivity extends AppCompatActivity {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sp.edit();
         editor.putBoolean("login", true);
-        editor.putString("full_name", response.getString("full_name"));
         editor.putString("username", response.getString("name"));
         editor.putString("password", response.getString("password"));
+        editor.putString("loginResponse", response.toString());
         editor.commit();
 
         // move to main activity

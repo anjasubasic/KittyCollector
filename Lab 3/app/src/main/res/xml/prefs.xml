@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <!--<Preference-->
-        <!--android:title="@string/profilePartLabel"-->
-        <!--android:key="profile"-->
-        <!--android:layout="@layprefs_customstom" />-->
-
-    <!--<PreferenceCategory-->
-        <!--android:title="@string/preferencesPartLabel">-->
 
     <ListPreference
         android:key="update_frequency"
