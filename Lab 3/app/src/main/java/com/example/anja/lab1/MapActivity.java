@@ -55,6 +55,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 
 
 /**
@@ -80,6 +81,7 @@ public class MapActivity extends AppCompatActivity
     Marker lastClicked = null;
     Boolean lastClickedPet= false, hardMode = false;
     JSONObject cat;
+    ArrayList<Marker> catMarkers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,6 +136,7 @@ public class MapActivity extends AppCompatActivity
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,17));
 
                 RequestCatLocations();
+                hideOutOfBoundsMarkers();
 
             } else {
                 checkLocationPermission();
@@ -186,7 +189,9 @@ public class MapActivity extends AppCompatActivity
         markerOptions.position(latLng);
         markerOptions.title("Starting Position");
         markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_self));
-        meMarker = map.addMarker(markerOptions); // no need to add a marker for current location, google maps already adds the current location (little blue thing)
+        meMarker = map.addMarker(markerOptions);
+
+        hideOutOfBoundsMarkers();
     }
 
     @Override
@@ -299,6 +304,7 @@ public class MapActivity extends AppCompatActivity
 
 
     private void addCatsToMap(JSONArray response) throws JSONException {
+        catMarkers = new ArrayList<>();
         Log.d("CATLIST", "TEST");
         catsJson = response;
         //TODO: Add icons to markers, fix bug with camera
@@ -328,7 +334,34 @@ public class MapActivity extends AppCompatActivity
             }
 
             Marker marker = map.addMarker(markerOptions);
+            catMarkers.add(marker);
             marker.setTag(cat);
+        }
+    }
+
+    private void hideOutOfBoundsMarkers() {
+        if (catMarkers != null) {
+            for (int i = 0; i < catMarkers.size(); i++) {
+
+                Marker catMarker = catMarkers.get(i);
+                LatLng catMarkerPosition = catMarker.getPosition();
+                float[] results = new float[1];
+
+                Location.distanceBetween(catMarkerPosition.latitude, catMarkerPosition.longitude,
+                        lastLocation.getLatitude(), lastLocation.getLongitude(), results);
+
+                float distanceFromCat = results[0];
+
+                SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+                int catRadius = sp.getInt("cat_radius", 800); // default to 800? s
+
+                if (distanceFromCat < catRadius) {
+                    catMarker.setVisible(true);
+                } else {
+                    catMarker.setIcon(BitmapDescriptorFactory.defaultMarker());
+                    //catMarker.setVisible(false);
+                }
+            }
         }
     }
 
