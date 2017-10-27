@@ -338,10 +338,15 @@ public class MapActivity extends AppCompatActivity
             catMarkers.add(marker);
             marker.setTag(cat);
         }
+
+        hideOutOfBoundsMarkers();
     }
 
     private void hideOutOfBoundsMarkers() {
-        if (catMarkers != null) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        String catRadius = sp.getString("cat_radius", "500");
+
+        if (catMarkers != null && !catRadius.equals("infinite")) {
             for (int i = 0; i < catMarkers.size(); i++) {
 
                 Marker catMarker = catMarkers.get(i);
@@ -352,9 +357,6 @@ public class MapActivity extends AppCompatActivity
                         lastLocation.getLatitude(), lastLocation.getLongitude(), results);
 
                 float distanceFromCat = results[0];
-
-                SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-                String catRadius = sp.getString("cat_radius", "800"); // default to 800?
 
                 if (distanceFromCat < Integer.parseInt(catRadius)) {
                     catMarker.setVisible(true);

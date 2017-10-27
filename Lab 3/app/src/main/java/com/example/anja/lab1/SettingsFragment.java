@@ -17,12 +17,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -219,6 +216,7 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
+                        Log.d("PWD_RESPONSE", "onResponse: " + response.toString());
                         if (response == null) {
                             Toast.makeText(getActivity(),
                                     R.string.noConnectionText, Toast.LENGTH_SHORT).show();

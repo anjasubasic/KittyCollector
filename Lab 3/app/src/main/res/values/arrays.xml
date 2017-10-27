@@ -15,6 +15,7 @@
     </string-array>
 
     <string-array name="radiusListArray">
+        <item>200 meters</item>
         <item>500 meters</item>
         <item>1000 meters</item>
         <item>2000 meters</item>
@@ -22,9 +23,10 @@
     </string-array>
 
     <string-array name="radiusListValues">
+        <item>200</item>
         <item>500</item>
         <item>1000</item>
         <item>2000</item>
-        <item>10000</item>
+        <item>infinite</item>
     </string-array>
 </resources>

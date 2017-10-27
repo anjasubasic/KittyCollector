@@ -30,7 +30,7 @@
         android:summary="@string/radiusDescription"
         android:entries="@array/radiusListArray"
         android:entryValues="@array/radiusListValues"
-        android:defaultValue="1000"
+        android:defaultValue="500"
         android:dialogTitle="@string/radiusLabel"
         android:layout="@layout/prefs_custom"/>
 

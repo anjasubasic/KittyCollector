@@ -55,8 +55,10 @@ public class SuccessActivity extends AppCompatActivity {
                     toast = Toast.makeText(getApplicationContext(), getString(R.string.growl),
                             Toast.LENGTH_SHORT);
                 }
-
                 numPet++;
+
+                // showing short toasts referenced from
+                // https://stackoverflow.com/questions/3775074/set-toast-appear-length/9715422#9715422
                 toast.show();
                 Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
