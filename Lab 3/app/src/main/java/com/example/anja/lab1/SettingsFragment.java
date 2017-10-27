@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -25,7 +26,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.FileInputStream;
@@ -39,9 +40,7 @@ import java.io.IOException;
 public class SettingsFragment extends android.support.v4.app.DialogFragment {
     private TextView fullnameTxt, usernameTxt;
     private ImageView profilePhoto;
-    private Button signOutButton;
-    private LinearLayout about, alert;
-    private Switch privacy;
+    private Button resetButton;
 
     @Nullable
     @Override
@@ -51,12 +50,17 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         profilePhoto = view.findViewById(R.id.profilePicture);
         fullnameTxt = view.findViewById(R.id.fullnameText);
         usernameTxt = view.findViewById(R.id.usernameText);
-        signOutButton = view.findViewById(R.id.signOutButton);
+        Button signOutButton = view.findViewById(R.id.signOutButton);
+        resetButton = view.findViewById(R.id.reset);
 
         setProfile();
         signOutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) { onSignOutClicked(); }
+        });
+        resetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { onrResetClicked(); }
         });
 
         FragmentTransaction transaction = getActivity().getFragmentManager().beginTransaction();
@@ -133,5 +137,45 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         getActivity().finish();
+    }
+
+    private void onrResetClicked() {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String username = sp.getString("username", "");
+        String password = sp.getString("password", "");
+        RequestQueue queue = Volley.newRequestQueue(getActivity());
+            String url ="http://cs65.cs.dartmouth.edu/resetlist.pl?name=";
+            JsonObjectRequest jsObjRequest = new JsonObjectRequest (Request.Method.GET,
+                    url + username + "&password=" + password, null,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            if (response == null) {
+                                Toast.makeText(getActivity(),
+                                        R.string.noConnectionText, Toast.LENGTH_SHORT).show();
+                            } else {
+                                try {
+                                    if (response.getString("status").equals("OK")) {
+                                        Toast.makeText(getActivity(), "cat list reset",
+                                                Toast.LENGTH_SHORT).show();
+                                    } else if (response.getString("status").equals("ERROR")) {
+                                        Toast.makeText(getActivity(),
+                                                response.getString("error"), Toast.LENGTH_SHORT).show();
+                                    }
+                                } catch (JSONException e) {
+                                    Toast.makeText(getActivity(),
+                                            "Unable to parse response: " + response.toString(),
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Toast.makeText(getActivity(), "Error: " + error.toString(),
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+        queue.add(jsObjRequest);
     }
 }

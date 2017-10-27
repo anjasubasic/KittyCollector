@@ -43,8 +43,9 @@
     <string name="aboutDescription">Edit your bio</string>
     <string name="updateLabel">Location Update</string>
     <string name="updateDescription">Choose how often you update your location</string>
-    <string name="privacyLabel">Privacy</string>
-    <string name="privacyDescription">Make profile publicly visible</string>
+    <string name="difficultyLabel">Difficulty</string>
+    <string name="difficultyDescription">Initiate HARD MODE!</string>
+    <string name="gameSettings">Cat List</string>
 
     <!-- Play tab strings -->
     <string name="playButton">Let\'s Meow!</string>
@@ -56,12 +57,15 @@
     <string name="catNamePlaceholder">Click a marker!</string>
     <string name="catDistPlaceholder">find the cats!</string>
     <string name="distanceUnits"> m away</string>
+    <string name="meow">Meow!</string>
 
     <!-- Success activity strings -->
     <string name="successMessage">Meow! I like you!</string>
     <string name="againText">Again</string>
     <string name="doneText">Done</string>
     <string name="detailMessage">You befriended %s!</string>
+    <string name="purr">Purrrrrrr…</string>
+    <string name="growl">Meow! Stop touching!</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

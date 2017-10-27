@@ -25,9 +25,9 @@
         android:layout="@layout/prefs_custom"/>
 
     <SwitchPreference
-        android:key="privacy"
-        android:summary="@string/privacyDescription"
-        android:title="@string/privacyLabel"
+        android:key="hard"
+        android:summary="@string/difficultyDescription"
+        android:title="@string/difficultyLabel"
         android:layout="@layout/prefs_custom"/>
 
 </PreferenceScreen>

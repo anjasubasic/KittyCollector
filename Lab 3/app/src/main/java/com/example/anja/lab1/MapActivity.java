@@ -78,7 +78,7 @@ public class MapActivity extends AppCompatActivity
     int catId;
     String username, password;
     Marker lastClicked = null;
-    Boolean lastClickedPet = false;
+    Boolean lastClickedPet= false, hardMode = false;
     JSONObject cat;
 
     @Override
@@ -93,6 +93,7 @@ public class MapActivity extends AppCompatActivity
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         username = sp.getString("username", "");
         password = sp.getString("password", "");
+        hardMode = sp.getBoolean("hard", false);
 
         catPicture = findViewById(R.id.catPicture);
         catName = findViewById(R.id.catName);
@@ -252,28 +253,33 @@ public class MapActivity extends AppCompatActivity
 
     // CAT LOCATION METHODS //
     private void RequestCatLocations() {
-            RequestQueue queue = Volley.newRequestQueue(this);
-            // TODO: The following returns catlist for the easy mode. Still need to implement hard mode
-            String url ="http://cs65.cs.dartmouth.edu/catlist.pl?name=";
-            JsonArrayRequest jsObjRequest = new JsonArrayRequest (Request.Method.GET,
-                    url + username + "&password=" + password, null,
-                    new Response.Listener<JSONArray>() {
-                        @Override
-                        public void onResponse(JSONArray response) {
-                            // ADD CATS
-                            onCatlistRequest(response);
-                        }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(getApplicationContext(), "Error: " + error.toString(),
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
-            queue.add(jsObjRequest);
-        }
+        RequestQueue queue = Volley.newRequestQueue(this);
 
-    private void onCatlistRequest(JSONArray response) {
+        // set cat list request URL according to game mode
+        String url ="http://cs65.cs.dartmouth.edu/catlist.pl?name=";
+        String requestUrl;
+        if (hardMode) requestUrl = url + username + "&password=" + password + "&mode=hard";
+        else requestUrl = url + username + "&password=" + password + "&mode=easy";
+
+        JsonArrayRequest jsObjRequest = new JsonArrayRequest (Request.Method.GET,
+                requestUrl, null,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        // ADD CATS
+                        onCatListRequest(response);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getApplicationContext(), "Error: " + error.toString(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+        queue.add(jsObjRequest);
+    }
+
+    private void onCatListRequest(JSONArray response) {
         Log.d("LOGIN_RESULT", "onLoginRequest: " + response.toString());
         if (response == null) {
             Toast.makeText(getApplicationContext(),
@@ -414,8 +420,11 @@ public class MapActivity extends AppCompatActivity
         String latitude, longitude;
         RequestQueue queue = Volley.newRequestQueue(this);
         if (lastLocation != null) {
-            latitude = Double.toString(lastLocation.getLatitude());
-            longitude = Double.toString(lastLocation.getLongitude());
+//            latitude = Double.toString(lastLocation.getLatitude());
+//            longitude = Double.toString(lastLocation.getLongitude());
+            // uncomment this to pet Sherlock (may need to reset list for him to show up)
+            latitude = "43.70315698";
+            longitude = "-72.29038673";
         } else {
             latitude = "43.70315698";
             longitude = "-72.29038673";
@@ -430,8 +439,6 @@ public class MapActivity extends AppCompatActivity
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Toast.makeText(getApplicationContext(), "Meow!",
-                                Toast.LENGTH_SHORT).show();
                         onPetRequest(response);
                     }
                 }, new Response.ErrorListener() {
@@ -453,6 +460,8 @@ public class MapActivity extends AppCompatActivity
         else {
             try {
                 if (response.getString("status").equals("OK")) {
+                    Toast.makeText(getApplicationContext(), getString(R.string.meow),
+                            Toast.LENGTH_SHORT).show();
                     SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
                     SharedPreferences.Editor editor = sp.edit();
                     editor.putString("catName", catName.getText().toString());
