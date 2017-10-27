@@ -191,7 +191,7 @@ public class MapActivity extends AppCompatActivity
         markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_self));
         meMarker = map.addMarker(markerOptions);
 
-        hideOutOfBoundsMarkers();
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,17));
     }
 
     @Override
