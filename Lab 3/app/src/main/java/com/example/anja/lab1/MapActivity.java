@@ -353,9 +353,9 @@ public class MapActivity extends AppCompatActivity
                 float distanceFromCat = results[0];
 
                 SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-                int catRadius = sp.getInt("cat_radius", 800); // default to 800? s
+                String catRadius = sp.getString("cat_radius", "800"); // default to 800?
 
-                if (distanceFromCat < catRadius) {
+                if (distanceFromCat < Integer.parseInt(catRadius)) {
                     catMarker.setVisible(true);
                 } else {
                     //catMarker.setIcon(BitmapDescriptorFactory.defaultMarker()); uncomment to see marker change if cat is too far away
