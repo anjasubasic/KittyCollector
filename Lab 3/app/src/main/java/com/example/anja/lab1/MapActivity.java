@@ -128,10 +128,10 @@ public class MapActivity extends AppCompatActivity
                 map.setMyLocationEnabled(true);
                 LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                 Criteria criteria = new Criteria();
-                Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+                lastLocation = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
                 LatLng latLng = new LatLng(43.7068, -72.2874);
-                if (location != null) {
-                    latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                if (lastLocation != null) {
+                    latLng = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
                 }
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,17));
 
@@ -201,7 +201,7 @@ public class MapActivity extends AppCompatActivity
         //a button that takes you back  to the current location. Leave the line commented out just so we don't
         //lose points.
 
-        //map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,17));
+        map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
     }
 
     @Override
@@ -228,7 +228,6 @@ public class MapActivity extends AppCompatActivity
                         })
                         .create()
                         .show();
-
 
             } else {
                 ActivityCompat.requestPermissions(this,
