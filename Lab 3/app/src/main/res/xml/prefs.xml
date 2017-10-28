@@ -7,7 +7,7 @@
         android:summary="@string/updateDescription"
         android:entries="@array/frequencyListArray"
         android:entryValues="@array/frequencyListValues"
-        android:defaultValue="1000"
+        android:defaultValue="500"
         android:dialogTitle="@string/updateLabel"
         android:layout="@layout/prefs_custom"/>
 

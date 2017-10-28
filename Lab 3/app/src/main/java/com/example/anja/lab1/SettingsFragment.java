@@ -218,12 +218,11 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         Log.d("REQUEST", "buildJSONObject: " + sp.getString("loginResponse", ""));
         try {
-            JSONObject loginResponse = new JSONObject(sp.getString("loginResponse", ""));
             // things from the original login
             json.put("name", sp.getString("username", ""));
             json.put( "password", sp.getString("password", ""));
-            json.put("full_name", loginResponse.get("full_name"));
-            json.put("photo", loginResponse.get("photo"));
+            json.put("full_name", sp.getString("full_name", ""));
+            json.put("photo", sp.getString("photo", ""));
             // Add settings
             json.put("update_frequency", sp.getString("update_frequency", "1000"));
             json.put("hard", sp.getBoolean("hard", false));
@@ -256,7 +255,7 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
                                     if (response.getString("status").equals("OK")) {
                                         Toast.makeText(getActivity(), "cat list reset",
                                                 Toast.LENGTH_SHORT).show();
-                                    } else if (response.getString("status").equals("ERROR")) {
+                                    } else {
                                         Toast.makeText(getActivity(),
                                                 response.getString("error"), Toast.LENGTH_SHORT).show();
                                     }
@@ -303,14 +302,10 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
                                     SharedPreferences.Editor editor = sp.edit();
                                     editor.putString("password", newPass);
                                     editor.commit();
-                                } else {
-                                    if (response.getString("code").equals("AUTH_FAIL")) {
-                                        Toast.makeText(getActivity(),
-                                                response.getString("error"), Toast.LENGTH_LONG).show();
-                                    } else if (response.getString("status").equals("ERROR")) {
-                                        Toast.makeText(getActivity(),
-                                                response.getString("error"), Toast.LENGTH_LONG).show();
-                                    }
+                                } else if (response.getString("status").equals("ERROR")) {
+                                    Toast.makeText(getActivity(),
+                                            response.getString("error"), Toast.LENGTH_LONG).show();
+
                                 }
                             } catch (JSONException e) {
                                 Toast.makeText(getActivity(),

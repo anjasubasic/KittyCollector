@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 JSONObject loginResponse = new JSONObject(sp.getString("loginResponse", ""));
                 editor.putString("full_name", loginResponse.getString("full_name"));
+                editor.putString("photo", loginResponse.getString("photo"));
                 editor.putString("update_frequency", loginResponse.getString("update_frequency"));
                 editor.putBoolean("hard", loginResponse.getBoolean("hard"));
                 editor.putString("cat_radius", loginResponse.getString("cat_radius"));
