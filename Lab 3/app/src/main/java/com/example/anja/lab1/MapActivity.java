@@ -55,6 +55,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 
@@ -82,7 +83,7 @@ public class MapActivity extends AppCompatActivity
     Boolean lastClickedPet= false, hardMode = false;
     JSONObject cat;
     ArrayList<Marker> catMarkers;
-
+    DecimalFormat mDistance = new DecimalFormat("#.00 m");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -326,7 +327,6 @@ public class MapActivity extends AppCompatActivity
         catMarkers = new ArrayList<>();
         Log.d("CATLIST", "TEST");
         catsJson = response;
-        //TODO: Add icons to markers, fix bug with camera
 
         for (int i = 0; i < catsJson.length(); i++) {
             JSONObject cat = catsJson.getJSONObject(i);
@@ -386,7 +386,7 @@ public class MapActivity extends AppCompatActivity
 
                 // update cat distance when location is updated
                 if (catMarker.equals(currentCatMarker)) {
-                    catDistance.setText(Float.toString(distanceFromCat));
+                    catDistance.setText(mDistance.format(distanceFromCat));
                 }
 
                 if (distanceFromCat < Integer.parseInt(catRadius)) {
@@ -443,9 +443,7 @@ public class MapActivity extends AppCompatActivity
                         placeholderLocation.setLongitude(-72.29038673);
                         distanceFromCat = placeholderLocation.distanceTo(catLocation);
                     }
-                    Log.d("DISTANCE", "onMarkerClick: " + distanceFromCat);
-                    catDistance.setText(Float.toString(distanceFromCat));
-                    //TODO: Format string
+                    catDistance.setText(mDistance.format(distanceFromCat));
 
                     petButton.setVisibility(View.VISIBLE);
                     if (cat.getBoolean("petted")) {
