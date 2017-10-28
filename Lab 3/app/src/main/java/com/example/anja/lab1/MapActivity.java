@@ -188,7 +188,7 @@ public class MapActivity extends AppCompatActivity
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
         markerOptions.title("Starting Position");
-        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_self));
+        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("marker_self",100,100)));
         meMarker = map.addMarker(markerOptions);
 
         hideOutOfBoundsMarkers();
@@ -544,5 +544,11 @@ public class MapActivity extends AppCompatActivity
                         Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    public Bitmap resizeMapIcons(String iconName,int width, int height){
+        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier(iconName, "drawable", getPackageName()));
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, width, height, false);
+        return resizedBitmap;
     }
 }
