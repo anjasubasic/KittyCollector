@@ -83,6 +83,7 @@ public class MapActivity extends AppCompatActivity
     JSONObject cat;
     ArrayList<Marker> catMarkers;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,6 +118,16 @@ public class MapActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            if (mGoogleApiClient != null && locationRequest != null) {
+                LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, this);
+            }
+        }
+    }
+
+    @Override
     public void onMapReady(GoogleMap googleMap) {
 
         map = googleMap;
@@ -128,10 +139,10 @@ public class MapActivity extends AppCompatActivity
                 map.setMyLocationEnabled(true);
                 LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                 Criteria criteria = new Criteria();
-                Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+                lastLocation = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
                 LatLng latLng = new LatLng(43.7068, -72.2874);
-                if (location != null) {
-                    latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                if (lastLocation != null) {
+                    latLng = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
                 }
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,17));
 
@@ -188,11 +199,20 @@ public class MapActivity extends AppCompatActivity
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
         markerOptions.title("Starting Position");
-        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_self));
+        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("marker_self",100,100)));
         meMarker = map.addMarker(markerOptions);
 
         hideOutOfBoundsMarkers();
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,17));
+
+        //The line below updates the camera on location change. Except it thinks you're
+        //always moving unless the phone is perfectly still and doesn't let you look around the map properly. It's what's in the requirements but
+        //it's really annoying so let's just comment it out and explain ourselves in the readme. It works perfectly,
+        //it's just not a good feature for this type of app because it won't let you look around the map while you're
+        //moving at all, it keeps going back to the current location marker. It's also not necessary since we have
+        //a button that takes you back  to the current location. Leave the line commented out just so we don't
+        //lose points.
+
+        map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
     }
 
     @Override
@@ -219,7 +239,6 @@ public class MapActivity extends AppCompatActivity
                         })
                         .create()
                         .show();
-
 
             } else {
                 ActivityCompat.requestPermissions(this,
@@ -530,11 +549,18 @@ public class MapActivity extends AppCompatActivity
                     Toast.makeText(getApplicationContext(),
                             response.getString("reason"), Toast.LENGTH_SHORT).show();
                 }
+
             } catch (JSONException e) {
                 Toast.makeText(getApplicationContext(),
                         "Unable to parse response: " + response.toString(),
                         Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    public Bitmap resizeMapIcons(String iconName,int width, int height){
+        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier(iconName, "drawable", getPackageName()));
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, width, height, false);
+        return resizedBitmap;
     }
 }
