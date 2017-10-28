@@ -83,6 +83,7 @@ public class MapActivity extends AppCompatActivity
     JSONObject cat;
     ArrayList<Marker> catMarkers;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,6 +114,16 @@ public class MapActivity extends AppCompatActivity
 
         if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            if (mGoogleApiClient != null && locationRequest != null) {
+                LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, this);
+            }
         }
     }
 
@@ -538,6 +549,7 @@ public class MapActivity extends AppCompatActivity
                     Toast.makeText(getApplicationContext(),
                             response.getString("reason"), Toast.LENGTH_SHORT).show();
                 }
+
             } catch (JSONException e) {
                 Toast.makeText(getApplicationContext(),
                         "Unable to parse response: " + response.toString(),
