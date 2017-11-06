@@ -52,6 +52,7 @@
 
     <!-- Play tab strings -->
     <string name="playButton">Let\'s Meow!</string>
+    <string name="resetButton">Reset List</string>
     <string name="helloMessage">Hi, player!</string>
     <string name="scoreTrack">You have 0 cats waiting!</string>
 

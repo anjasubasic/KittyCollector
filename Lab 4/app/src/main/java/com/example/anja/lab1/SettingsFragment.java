@@ -76,11 +76,6 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
             }
         });
 
-        resetButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) { onrResetClicked(); }
-        });
-
         FragmentTransaction transaction = getActivity().getFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, new PrefsFragment());
 //        transaction.addToBackStack(null);
@@ -234,46 +229,6 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
             return null;
         }
         return json;
-    }
-
-    private void onrResetClicked() {
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String username = sp.getString("username", "");
-        String password = sp.getString("password", "");
-        RequestQueue queue = Volley.newRequestQueue(getActivity());
-            String url ="http://cs65.cs.dartmouth.edu/resetlist.pl?name=";
-            JsonObjectRequest jsObjRequest = new JsonObjectRequest (Request.Method.GET,
-                    url + username + "&password=" + password, null,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            if (response == null) {
-                                Toast.makeText(getActivity(),
-                                        R.string.noConnectionText, Toast.LENGTH_SHORT).show();
-                            } else {
-                                try {
-                                    if (response.getString("status").equals("OK")) {
-                                        Toast.makeText(getActivity(), "cat list reset",
-                                                Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        Toast.makeText(getActivity(),
-                                                response.getString("error"), Toast.LENGTH_SHORT).show();
-                                    }
-                                } catch (JSONException e) {
-                                    Toast.makeText(getActivity(),
-                                            "Unable to parse response: " + response.toString(),
-                                            Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(getActivity(), "Error: " + error.toString(),
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
-        queue.add(jsObjRequest);
     }
 
     public void updatePassword(String currentPass, final String newPass) {

@@ -454,16 +454,19 @@ public class MapActivity extends AppCompatActivity
 
                     trackButton.setVisibility(View.VISIBLE);
                     // TODO: make track button into STOP when already tracking
-                    // TODO: disable tracking when already petted
                     petButton.setVisibility(View.VISIBLE);
                     if (cat.getBoolean("petted")) {
                         petButton.setAlpha(.5f);
                         petButton.setClickable(false);
+                        trackButton.setAlpha(.5f);
+                        trackButton.setClickable(false);
                         lastClickedPet = true;
 
                     } else {
                         petButton.setAlpha(1f);
                         petButton.setClickable(true);
+                        trackButton.setAlpha(1f);
+                        trackButton.setClickable(true);
                         lastClickedPet = false;
                     }
                 }

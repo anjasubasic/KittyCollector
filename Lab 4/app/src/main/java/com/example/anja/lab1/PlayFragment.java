@@ -18,19 +18,22 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by Anja on 9/24/2017.
- * Updated by Jenny 10/26/2017
+ * Updated by Jenny 11/05/2017
  */
 
 public class PlayFragment extends Fragment {
     private static final String TAG = "Play";
     private TextView helloTxt, scoreTxt;
-    private Button playButton;
+    private Button playButton, resetButton;
     private int numCats;
 
     @Nullable
@@ -41,6 +44,7 @@ public class PlayFragment extends Fragment {
         helloTxt = view.findViewById(R.id.helloText);
         scoreTxt = view.findViewById(R.id.scoreText);
         playButton = view.findViewById(R.id.playButton);
+        resetButton = view.findViewById(R.id.resetButton);
         numCats = 0;
 
         loadUserInfo();
@@ -51,6 +55,11 @@ public class PlayFragment extends Fragment {
                 Intent intent = new Intent(getActivity(), MapActivity.class);
                 startActivity(intent);
             }
+        });
+
+        resetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { onResetClicked(); }
         });
 
         return view;
@@ -70,6 +79,7 @@ public class PlayFragment extends Fragment {
     }
 
     private void getCatNum() {
+        //TODO: Calculate how many cats have been petted
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String username = sp.getString("username", "");
@@ -90,6 +100,47 @@ public class PlayFragment extends Fragment {
                         numCats = response.length();
                         String scoreTrack = "You have " + numCats + " cats waiting!";
                         scoreTxt.setText(scoreTrack);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getActivity(), "Error: " + error.toString(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+        queue.add(jsObjRequest);
+    }
+
+    private void onResetClicked() {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String username = sp.getString("username", "");
+        String password = sp.getString("password", "");
+        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        String url ="http://cs65.cs.dartmouth.edu/resetlist.pl?name=";
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest (Request.Method.GET,
+                url + username + "&password=" + password, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        if (response == null) {
+                            Toast.makeText(getActivity(),
+                                    R.string.noConnectionText, Toast.LENGTH_SHORT).show();
+                        } else {
+                            try {
+                                if (response.getString("status").equals("OK")) {
+                                    Toast.makeText(getActivity(), "cat list reset",
+                                            Toast.LENGTH_SHORT).show();
+                                    getCatNum();
+                                } else {
+                                    Toast.makeText(getActivity(),
+                                            response.getString("error"), Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (JSONException e) {
+                                Toast.makeText(getActivity(),
+                                        "Unable to parse response: " + response.toString(),
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }
                     }
                 }, new Response.ErrorListener() {
             @Override
