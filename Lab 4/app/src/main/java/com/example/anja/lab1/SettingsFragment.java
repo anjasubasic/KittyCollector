@@ -43,7 +43,7 @@ import java.util.Map;
 public class SettingsFragment extends android.support.v4.app.DialogFragment {
     private TextView fullnameTxt, usernameTxt;
     private ImageView profilePhoto;
-    private Button resetButton, passwordButton;
+    private Button passwordButton;
     int requestCode = 123;
     private Fragment fragment;
 
@@ -57,7 +57,6 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         usernameTxt = view.findViewById(R.id.usernameText);
         Button signOutButton = view.findViewById(R.id.signOutButton);
         passwordButton = view.findViewById(R.id.pwdChangeButton);
-        resetButton = view.findViewById(R.id.reset);
         fragment = this;
 
         setProfile();

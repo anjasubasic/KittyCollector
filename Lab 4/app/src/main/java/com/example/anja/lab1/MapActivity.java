@@ -104,7 +104,7 @@ public class MapActivity extends AppCompatActivity
         catName = findViewById(R.id.catName);
         catDistance = findViewById(R.id.catDistance);
         trackButton = findViewById(R.id.trackButton);
-        petButton.setOnClickListener(new View.OnClickListener() {
+        trackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) { sendTrackRequest(); }
         });
