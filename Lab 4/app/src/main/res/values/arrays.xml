@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="frequencyListArray">
+        <item>Every 0.25 second</item>
+        <item>Every 0.5 seconds</item>
+        <item>Every 1 seconds</item>
+        <item>Every 2 seconds</item>
+        <item>Every 5 seconds</item>
+        <item>Every 10 seconds</item>
+    </string-array>
+
+    <string-array name="frequencyListValues">
+        <item>250</item>
+        <item>500</item>
+        <item>1000</item>
+        <item>2000</item>
+        <item>5000</item>
+        <item>10000</item>
+    </string-array>
+
+    <string-array name="radiusListArray">
+        <item>200 meters</item>
+        <item>500 meters</item>
+        <item>1000 meters</item>
+        <item>2000 meters</item>
+        <item>infinite! me see all the kitties!</item>e
+    </string-array>
+
+    <string-array name="radiusListValues">
+        <item>200</item>
+        <item>500</item>
+        <item>1000</item>
+        <item>2000</item>
+        <item>infinite</item>
+    </string-array>
+</resources>

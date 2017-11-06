@@ -121,7 +121,7 @@ Upon successful petting of the cat, a screen pops up saying you have befriended 
 
 2. `DONE`: takes you to `MainActivity`'s tabbed view, so you can stop playing or go to the settings tab to change your preferences or reset the list etc.  
 
-**NOTE**: There is in fact, another hidden button in this screen. What is it? Click around to find out...  
+**NOTE**: There is, in fact, another *hidden button* in this screen. What is it? Click around to find out... 😏  
 
 ### ⚙️ Settings Tab
 

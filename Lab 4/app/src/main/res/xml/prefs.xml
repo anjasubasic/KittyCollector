@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ListPreference
+        android:key="update_frequency"
+        android:title="@string/updateLabel"
+        android:summary="@string/updateDescription"
+        android:entries="@array/frequencyListArray"
+        android:entryValues="@array/frequencyListValues"
+        android:defaultValue="500"
+        android:dialogTitle="@string/updateLabel"
+        android:layout="@layout/prefs_custom"/>
+
+    <SwitchPreference
+        android:key="hard"
+        android:summary="@string/difficultyDescription"
+        android:title="@string/difficultyLabel"
+        android:layout="@layout/prefs_custom"/>
+
+    <ListPreference
+        android:key="cat_radius"
+        android:title="@string/radiusLabel"
+        android:summary="@string/radiusDescription"
+        android:entries="@array/radiusListArray"
+        android:entryValues="@array/radiusListValues"
+        android:defaultValue="500"
+        android:dialogTitle="@string/radiusLabel"
+        android:layout="@layout/prefs_custom"/>
+
+</PreferenceScreen>

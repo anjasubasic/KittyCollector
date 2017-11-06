@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center">
+
+    <!-- android:inputType textEmailAddress & textPassword result
+           in Google's suggestions to autofill save these
+
+        android:inputType="textEmailAddress"
+        android:inputType="textPassword"
+
+        android:hint="Password"  also causes auto-fill to pop up!
+    -->
+
+    <TextView
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="@string/currentPasswordLabel"/>
+
+    <EditText
+        android:id="@+id/currentPasswordInput"
+        android:inputType="textPassword"
+        android:digits="abcdefghijklmnopqrstuvwxyz1234567890"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:fontFamily="sans-serif"
+        />
+
+    <TextView
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="@string/passwordLabel"/>
+
+    <EditText
+        android:id="@+id/newPasswordInput"
+        android:inputType="textPassword"
+        android:digits="abcdefghijklmnopqrstuvwxyz1234567890"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:fontFamily="sans-serif"
+        />
+
+    <TextView
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="@string/confirmPassword"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp">
+        <EditText
+            android:id="@+id/passwordCheck"
+            android:inputType="textPassword"
+            android:digits="abcdefghijklmnopqrstuvwxyz1234567890"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:layout_marginVertical="5dp" />
+        <ImageView
+            android:id="@+id/passwordCheckImage"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="10dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/pwdSaveButton"
+            android:theme="@style/MyButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_gravity="center"
+            android:text="@string/saveButton" />
+
+        <Button
+            android:id="@+id/pwdCancelButton"
+            android:theme="@style/MyButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_gravity="center"
+            android:text="@string/backButton" />
+
+    </LinearLayout>
+
+    <!-- This layout is inflated and fed into an AlertDialog.Builder .
+         This builder will add the "OK" and "Cancel" buttons. -->
+
+</LinearLayout>
