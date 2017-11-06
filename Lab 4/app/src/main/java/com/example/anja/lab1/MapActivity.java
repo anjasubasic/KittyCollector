@@ -61,6 +61,7 @@ import java.util.ArrayList;
 
 /**
  * Created by jennyseong on 10/17/17.
+ * Edited by jenny on 11/05/2017
  */
 
 //Used some of this code to handle location permissions: https://stackoverflow.com/questions/34582370/how-can-i-show-current-location-on-a-google-map-on-android-marshmallow/34582595#34582595
@@ -76,7 +77,7 @@ public class MapActivity extends AppCompatActivity
     JSONArray catsJson;
     ImageView catPicture;
     TextView catName, catDistance;
-    Button petButton;
+    Button petButton, trackButton;
     int catId;
     String username, password;
     Marker lastClicked = null;
@@ -102,6 +103,11 @@ public class MapActivity extends AppCompatActivity
         catPicture = findViewById(R.id.catPicture);
         catName = findViewById(R.id.catName);
         catDistance = findViewById(R.id.catDistance);
+        trackButton = findViewById(R.id.trackButton);
+        petButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) { sendTrackRequest(); }
+        });
         petButton = findViewById(R.id.petButton);
         petButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -398,6 +404,7 @@ public class MapActivity extends AppCompatActivity
                         catName.setText(R.string.catNamePlaceholder);
                         catDistance.setText(R.string.catDistPlaceholder);
                         catPicture.setImageResource(R.drawable.click);
+                        trackButton.setVisibility(View.INVISIBLE);
                         petButton.setVisibility(View.INVISIBLE);
                     }
                 }
@@ -445,6 +452,9 @@ public class MapActivity extends AppCompatActivity
                     }
                     catDistance.setText(mDistance.format(distanceFromCat));
 
+                    trackButton.setVisibility(View.VISIBLE);
+                    // TODO: make track button into STOP when already tracking
+                    // TODO: disable tracking when already petted
                     petButton.setVisibility(View.VISIBLE);
                     if (cat.getBoolean("petted")) {
                         petButton.setAlpha(.5f);
@@ -490,6 +500,10 @@ public class MapActivity extends AppCompatActivity
         protected void onPostExecute(Bitmap result) {
             catPicture.setImageBitmap(result);
         }
+    }
+
+    private void sendTrackRequest() {
+        Toast.makeText(this, "track me!", Toast.LENGTH_SHORT).show();
     }
 
     private void sendPetRequest() {

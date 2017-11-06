@@ -55,8 +55,12 @@
     <string name="helloMessage">Hi, player!</string>
     <string name="scoreTrack">You have 0 cats waiting!</string>
 
+    <!-- History tab strings -->
+    <string name="catList">Cat List</string>
+
     <!-- Map activity strings -->
     <string name="petButton">Pet</string>
+    <string name="trackButton">Track</string>
     <string name="catNamePlaceholder">Click a marker!</string>
     <string name="catDistPlaceholder">Let\'s find the cats!</string>
     <string name="distanceUnits"> m away</string>
