@@ -36,7 +36,6 @@ public class MainActivity extends AppCompatActivity {
         SectionsPageAdapter adapter = new SectionsPageAdapter(getSupportFragmentManager());
         adapter.addFragment(new PlayFragment(), "Play");
         adapter.addFragment(new HistoryFragment(), "History");
-        adapter.addFragment(new RankingFragment(), "Ranking");
         adapter.addFragment(new SettingsFragment(), "Settings");
 
         viewPager.setAdapter(adapter);
