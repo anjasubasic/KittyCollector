@@ -9,29 +9,25 @@
 
     <ScrollView
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="55dp"
         android:fillViewport="true" >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="10dip" >
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp">
 
-            <TextView
+            <ListView android:id="@id/android:list"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                style="@style/SettingsTitle"
-                android:text="@string/catList" />
+                android:layout_height="match_parent"
+                android:drawSelectorOnTop="false"/>
 
-            <ListView
-                android:id="@+id/listView1"
+            <TextView android:id="@id/android:empty"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dip"
-                android:background="#B29090" >
-            </ListView>
+                android:layout_height="match_parent"/>
 
         </LinearLayout>
 
