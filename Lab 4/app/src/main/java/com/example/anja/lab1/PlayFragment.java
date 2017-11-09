@@ -98,7 +98,8 @@ public class PlayFragment extends Fragment {
                     @Override
                     public void onResponse(JSONArray response) {
                         numCats = response.length();
-                        String scoreTrack = "You have " + numCats + " cats waiting!";
+                        String scoreTrack = "You have pet " + getPetNum(response) +
+                                " out of " + numCats + " cats!";
                         scoreTxt.setText(scoreTrack);
                     }
                 }, new Response.ErrorListener() {
@@ -111,10 +112,25 @@ public class PlayFragment extends Fragment {
         queue.add(jsObjRequest);
     }
 
+    private int getPetNum(JSONArray response) {
+        int petNum = 0;
+        try {
+            for (int i = 0; i < response.length(); i++) {
+                JSONObject cat = response.getJSONObject(i);
+                if(cat.getBoolean("petted")) { petNum++; }
+            }
+        } catch (JSONException e) {}
+
+        return petNum;
+    }
+
     private void onResetClicked() {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String username = sp.getString("username", "");
         String password = sp.getString("password", "");
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putBoolean("listReset", true);
+        editor.apply();
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         String url ="http://cs65.cs.dartmouth.edu/resetlist.pl?name=";
         JsonObjectRequest jsObjRequest = new JsonObjectRequest (Request.Method.GET,

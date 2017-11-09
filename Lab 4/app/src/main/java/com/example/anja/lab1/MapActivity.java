@@ -38,6 +38,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -53,6 +54,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import com.squareup.picasso.Picasso;
+
+import com.varunmishra.catcameraoverlay.CameraViewActivity;
+import com.varunmishra.catcameraoverlay.Config;
+import com.varunmishra.catcameraoverlay.OnCatPetListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -71,7 +76,7 @@ import java.util.ArrayList;
 //Used some of this code to handle location permissions: https://stackoverflow.com/questions/34582370/how-can-i-show-current-location-on-a-google-map-on-android-marshmallow/34582595#34582595
 public class MapActivity extends AppCompatActivity
         implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleApiClient.OnConnectionFailedListener,
-        LocationListener, GoogleApiClient.ConnectionCallbacks {
+        LocationListener, GoogleApiClient.ConnectionCallbacks, OnCatPetListener {
 
     GoogleApiClient mGoogleApiClient;
     GoogleMap map;
@@ -537,39 +542,53 @@ public class MapActivity extends AppCompatActivity
     }
 
     private void sendPetRequest() {
-        String latitude, longitude;
-        RequestQueue queue = Volley.newRequestQueue(this);
-        if (lastLocation != null) {
-            latitude = Double.toString(lastLocation.getLatitude());
-            longitude = Double.toString(lastLocation.getLongitude());
-            // uncomment this to pet Sherlock (may need to reset list for him to show up)
+        Config.catName = "Kitty";
+        Config.catLatitude = 43.706844;
+        Config.catLongitude = -72.2876208;
+        Config.locDistanceRange = 30;
+        Config.useLocationFilter = false; // use this only for testing. This should be true in the final app.
+        Config.onCatPetListener = this;
+        Intent i = new Intent(this, CameraViewActivity.class);
+        startActivity(i);
+
+//        String latitude, longitude;
+//        RequestQueue queue = Volley.newRequestQueue(this);
+//        if (lastLocation != null) {
+//            latitude = Double.toString(lastLocation.getLatitude());
+//            longitude = Double.toString(lastLocation.getLongitude());
+//            // uncomment this to pet Sherlock (may need to reset list for him to show up)
+////            latitude = "43.70315698";
+////            longitude = "-72.29038673";
+//        } else {
 //            latitude = "43.70315698";
 //            longitude = "-72.29038673";
-        } else {
-            latitude = "43.70315698";
-            longitude = "-72.29038673";
-        }
-//        Toast.makeText(getApplicationContext(), "Current location: " + latitude + " & " + longitude,
-//                Toast.LENGTH_SHORT).show();
-        String url ="http://cs65.cs.dartmouth.edu/pat.pl?name=";
-        JsonObjectRequest jsObjRequest = new JsonObjectRequest (Request.Method.GET,
-                url + username + "&password=" + password + "&catid=" + catId +
-                "&lat=" + latitude + "&lng=" + longitude,
-                null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        onPetRequest(response);
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "Error: " + error.toString(),
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
+//        }
+////        Toast.makeText(getApplicationContext(), "Current location: " + latitude + " & " + longitude,
+////                Toast.LENGTH_SHORT).show();
+//        String url ="http://cs65.cs.dartmouth.edu/pat.pl?name=";
+//        JsonObjectRequest jsObjRequest = new JsonObjectRequest (Request.Method.GET,
+//                url + username + "&password=" + password + "&catid=" + catId +
+//                "&lat=" + latitude + "&lng=" + longitude,
+//                null,
+//                new Response.Listener<JSONObject>() {
+//                    @Override
+//                    public void onResponse(JSONObject response) {
+//                        onPetRequest(response);
+//                    }
+//                }, new Response.ErrorListener() {
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//                Toast.makeText(getApplicationContext(), "Error: " + error.toString(),
+//                        Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//
+//        queue.add(jsObjRequest);
+    }
 
-        queue.add(jsObjRequest);
+    @Override
+    public void onCatPet(String catName) {
+        Toast.makeText(this,"You just Pet - " + catName, Toast.LENGTH_LONG).show();
     }
 
     private void onPetRequest(JSONObject response) {
