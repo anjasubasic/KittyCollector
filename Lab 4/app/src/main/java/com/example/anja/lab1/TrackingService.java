@@ -26,6 +26,8 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Map;
+
 
 /**
  * Created by Anja on 11/8/2017.
@@ -89,15 +91,18 @@ public class TrackingService extends Service {
         Notification notification;
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         builder = new NotificationCompat.Builder(this);
-        Intent notificationIntent = new Intent(this, TrackingService.class);
         String distanceMessage = String.format("%.2f", distanceFromCat) + " m";
         String title = "Tracking " + catName;
-        Intent yesReceive = new Intent(this, StopReceiver.class);
-        PendingIntent pendingIntentStop = PendingIntent.getBroadcast(this, 12, yesReceive, 0);
+        Intent stopIntent = new Intent(this, StopReceiver.class);
+        Intent notificationIntent = new Intent(this, MapActivity.class);
+        PendingIntent pendingIntentStop = PendingIntent.getBroadcast(this, 12, stopIntent, 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+                notificationIntent, 0);
 
         builder.setOngoing(true)
                 .setContentTitle(title)
                 .setContentText(distanceMessage)
+                .setContentIntent(pendingIntent)
                 .setSmallIcon(R.drawable.catmarker_selected)
                 .setTicker("Ticker")
                 .addAction(R.drawable.cross, "Stop", pendingIntentStop);
