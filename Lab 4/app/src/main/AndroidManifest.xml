@@ -19,6 +19,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+        <receiver android:name=".TrackingService$StopReceiver" />
+
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -27,7 +29,9 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAkaphuE8kPdQoTch8uqjKeMnePysovfro"/>
 
-        <service android:name=".TrackingService" ></service>
+        <service android:name=".TrackingService"
+                 android:enabled="true">
+        </service>
 
         <activity
             android:name=".LoginActivity"

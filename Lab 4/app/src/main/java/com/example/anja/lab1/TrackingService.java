@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -31,6 +32,7 @@ import org.json.JSONObject;
  */
 
 public class TrackingService extends Service {
+    public boolean isRunning;
     private static int FOREGROUND_ID = 143;
     private static final int LOCATION_INTERVAL = 1000;
     private static final float LOCATION_DISTANCE = 10f;
@@ -47,6 +49,7 @@ public class TrackingService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        isRunning = true;
         catId = intent.getIntExtra("Cat", -1);
         catName = intent.getStringExtra("CatName");
         lastLocation = intent.getParcelableExtra("LastLocation");
@@ -89,17 +92,25 @@ public class TrackingService extends Service {
         Intent notificationIntent = new Intent(this, TrackingService.class);
         String distanceMessage = String.format("%.2f", distanceFromCat) + " m";
         String title = "Tracking " + catName;
-        PendingIntent pendingIntent =
-                PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        Intent yesReceive = new Intent(this, StopReceiver.class);
+        PendingIntent pendingIntentStop = PendingIntent.getBroadcast(this, 12, yesReceive, 0);
 
         builder.setOngoing(true)
                 .setContentTitle(title)
                 .setContentText(distanceMessage)
-                .setContentIntent(pendingIntent)
-                .setSmallIcon(R.drawable.shiba)
-                .setTicker("Ticker");
+                .setSmallIcon(R.drawable.catmarker_selected)
+                .setTicker("Ticker")
+                .addAction(R.drawable.cross, "Stop", pendingIntentStop);
 
         trackingNotification = builder.build();
+    }
+
+    public static class StopReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            context.stopService(new Intent(context, TrackingService.class));
+        }
     }
 
     private class LocationListener implements android.location.LocationListener
@@ -207,6 +218,7 @@ public class TrackingService extends Service {
     public void onDestroy()
     {
         Log.e("TrackingService", "onDestroy");
+        isRunning = false;
         super.onDestroy();
         if (mLocationManager != null) {
             try {

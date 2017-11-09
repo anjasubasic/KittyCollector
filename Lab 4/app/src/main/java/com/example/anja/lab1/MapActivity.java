@@ -1,5 +1,6 @@
 package com.example.anja.lab1;
 
+import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -120,7 +121,13 @@ public class MapActivity extends AppCompatActivity
     }
 
     private void setTrackButton() {
-        if (trackButton.getText().equals("Track") && catId == curTrackingCatId) {
+        boolean serviceRunning = checkServiceStatus();
+
+        if (serviceRunning != false){
+            trackButton.setText("Track");
+        }
+
+        if (trackButton.getText().equals("Track") && catId == curTrackingCatId && serviceRunning == true) {
             trackButton.setText("Stop");
         }
 
@@ -598,5 +605,17 @@ public class MapActivity extends AppCompatActivity
         Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier(iconName, "drawable", getPackageName()));
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, width, height, false);
         return resizedBitmap;
+    }
+
+    public boolean checkServiceStatus() {
+        ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo myService : activityManager
+                .getRunningServices(Integer.MAX_VALUE)) {
+            if ("com.example.anja.lab1.TrackingService".equals(myService.service
+                    .getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }
