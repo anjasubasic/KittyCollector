@@ -33,13 +33,32 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupViewPager(ViewPager viewPager) {
-        SectionsPageAdapter adapter = new SectionsPageAdapter(getSupportFragmentManager());
+        final SectionsPageAdapter adapter = new SectionsPageAdapter(getSupportFragmentManager());
         adapter.addFragment(new PlayFragment(), "Play");
         adapter.addFragment(new HistoryFragment(), "History");
         adapter.addFragment(new SettingsFragment(), "Settings");
 
         viewPager.setAdapter(adapter);
+
+        // refreshing history list using pageChangeListener
+        // referenced https://stackoverflow.com/questions/32435250/android-viewpager-refresh-fragment
+        ViewPager.OnPageChangeListener pageChangeListener = new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int i, float v, int i2) {}
+
+            @Override
+            public void onPageScrollStateChanged(int state) {}
+
+            @Override
+            public void onPageSelected(int i) {
+                if (i == 1) { ((HistoryFragment)adapter.getItem(i)).getCatList(); }
+            }
+        };
+
+        viewPager.addOnPageChangeListener(pageChangeListener);
     }
+
+
 
     private void loadPreferences() {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);

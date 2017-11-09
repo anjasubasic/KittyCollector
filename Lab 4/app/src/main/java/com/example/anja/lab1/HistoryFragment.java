@@ -6,6 +6,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,13 +37,9 @@ public class HistoryFragment extends ListFragment {
         return view;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        getCatList();
-    }
-
-    private void getCatList() {
+    // gets the cat list and updates the listView
+    // was made public because it is used in the MainActivity's ViewPager
+    public void getCatList() {
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String username = sp.getString("username", "");
