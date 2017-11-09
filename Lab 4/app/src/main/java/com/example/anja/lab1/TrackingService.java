@@ -155,6 +155,12 @@ public class TrackingService extends Service {
     }
 
     private void requestDistanceFromCat(Location location) {
+        if (location == null) {
+            Location placeholderLocation = new Location("");
+            placeholderLocation.setLatitude(43.70315698);
+            placeholderLocation.setLongitude(-72.29038673);
+            location = placeholderLocation;
+        }
         String latitude = String.valueOf(location.getLatitude());
         String longitude = String.valueOf(location.getLongitude());
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
