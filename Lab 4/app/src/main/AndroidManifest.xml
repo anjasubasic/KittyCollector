@@ -26,6 +26,9 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAkaphuE8kPdQoTch8uqjKeMnePysovfro"/>
+
+        <service android:name=".TrackingService" ></service>
+
         <activity
             android:name=".LoginActivity"
             android:label="@string/app_name"
