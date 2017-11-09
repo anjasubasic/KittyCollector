@@ -1,5 +1,8 @@
 package com.example.anja.lab1;
 
+import android.app.ActivityManager;
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,6 +18,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -78,7 +82,7 @@ public class MapActivity extends AppCompatActivity
     ImageView catPicture;
     TextView catName, catDistance;
     Button petButton, trackButton;
-    int catId;
+    int catId, curTrackingCatId = -1;
     String username, password;
     Marker lastClicked = null;
     Boolean lastClickedPet= false, hardMode = false;
@@ -105,14 +109,31 @@ public class MapActivity extends AppCompatActivity
         catDistance = findViewById(R.id.catDistance);
         trackButton = findViewById(R.id.trackButton);
         trackButton.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
-            public void onClick(View v) { sendTrackRequest(); }
+            public void onClick(View v) { sendTrackRequest(); setTrackButton(); }
         });
         petButton = findViewById(R.id.petButton);
         petButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) { sendPetRequest(); }
         });
+    }
+
+    private void setTrackButton() {
+        boolean serviceRunning = checkServiceStatus();
+
+        if (serviceRunning != false){
+            trackButton.setText("Track");
+        }
+
+        if (trackButton.getText().equals("Track") && catId == curTrackingCatId && serviceRunning == true) {
+            trackButton.setText("Stop");
+        }
+
+        else {
+            trackButton.setText("Track");
+        }
     }
 
     @Override
@@ -210,15 +231,6 @@ public class MapActivity extends AppCompatActivity
         meMarker = map.addMarker(markerOptions);
 
         hideOutOfBoundsMarkers();
-
-        //The line below updates the camera on location change. Except it thinks you're
-        //always moving unless the phone is perfectly still and doesn't let you look around the map properly. It's what's in the requirements but
-        //it's really annoying so let's just comment it out and explain ourselves in the readme. It works perfectly,
-        //it's just not a good feature for this type of app because it won't let you look around the map while you're
-        //moving at all, it keeps going back to the current location marker. It's also not necessary since we have
-        //a button that takes you back  to the current location. Leave the line commented out just so we don't
-        //lose points.
-
         map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
     }
 
@@ -433,6 +445,7 @@ public class MapActivity extends AppCompatActivity
                     cat = new JSONObject(marker.getTag().toString());
 
                     catId = Integer.parseInt(cat.getString("catId"));
+                    setTrackButton();
                     catName.setText(cat.getString("name"));
 //                    Picasso.with(this).load(cat.getString("picUrl")).into(catPicture);
                     new DownloadImageTask(catPicture).execute(cat.getString("picUrl"));
@@ -505,8 +518,22 @@ public class MapActivity extends AppCompatActivity
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void sendTrackRequest() {
-        Toast.makeText(this, "track me!", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, TrackingService.class);
+
+        if (trackButton.getText().equals("Track")) {
+            intent.putExtra("Cat", catId);
+            intent.putExtra("CatName", catName.getText().toString());
+            intent.putExtra("LastLocation", lastLocation);
+            curTrackingCatId = catId;
+            startService(intent);
+        }
+
+        else if (trackButton.getText().equals("Stop")) {
+            stopService(intent);
+            curTrackingCatId = -1;
+        }
     }
 
     private void sendPetRequest() {
@@ -541,6 +568,7 @@ public class MapActivity extends AppCompatActivity
                         Toast.LENGTH_SHORT).show();
             }
         });
+
         queue.add(jsObjRequest);
     }
 
@@ -577,5 +605,17 @@ public class MapActivity extends AppCompatActivity
         Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier(iconName, "drawable", getPackageName()));
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, width, height, false);
         return resizedBitmap;
+    }
+
+    public boolean checkServiceStatus() {
+        ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo myService : activityManager
+                .getRunningServices(Integer.MAX_VALUE)) {
+            if ("com.example.anja.lab1.TrackingService".equals(myService.service
+                    .getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }
