@@ -63,7 +63,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -329,7 +331,7 @@ public class MapActivity extends AppCompatActivity
     }
 
     private void onCatListRequest(JSONArray response) {
-        Log.d("LOGIN_RESULT", "onLoginRequest: " + response.toString());
+        Log.d("MAP_CATLIST", "catList: " + response.toString());
         if (response == null) {
             Toast.makeText(getApplicationContext(),
                     R.string.noConnectionText, Toast.LENGTH_SHORT).show();
@@ -542,53 +544,74 @@ public class MapActivity extends AppCompatActivity
     }
 
     private void sendPetRequest() {
-        Config.catName = "Kitty";
-        Config.catLatitude = 43.706844;
-        Config.catLongitude = -72.2876208;
-        Config.locDistanceRange = 30;
-        Config.useLocationFilter = false; // use this only for testing. This should be true in the final app.
-        Config.onCatPetListener = this;
+        try {
+            if (lastClicked.getTag() != null) {
+                cat = new JSONObject(lastClicked.getTag().toString());
+
+                catId = Integer.parseInt(cat.getString("catId"));
+                setTrackButton();
+                Config.catName = cat.getString("name");
+                Config.catLatitude = Double.parseDouble(cat.getString("lat"));
+                Config.catLongitude = Double.parseDouble(cat.getString("lng"));
+                try {
+                    URL url = new URL(cat.getString("picUrl"));
+                    Bitmap image = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                    Config.catImage = Bitmap.createScaledBitmap(image, 350, 350, false);
+                } catch(IOException e) {
+                    System.out.println(e);
+                }
+                Config.locDistanceRange = 30;
+                Config.useLocationFilter = false;
+                Config.onCatPetListener = this;
+            }
+        } catch (JSONException e) {
+            Config.catName = "Kitty";
+            Config.catLatitude = 43.706844;
+            Config.catLongitude = -72.2876208;
+            Config.locDistanceRange = 30;
+            Config.useLocationFilter = false; // use this only for testing. This should be true in the final app.
+            Config.onCatPetListener = this;
+        }
+
         Intent i = new Intent(this, CameraViewActivity.class);
         startActivity(i);
-
-//        String latitude, longitude;
-//        RequestQueue queue = Volley.newRequestQueue(this);
-//        if (lastLocation != null) {
-//            latitude = Double.toString(lastLocation.getLatitude());
-//            longitude = Double.toString(lastLocation.getLongitude());
-//            // uncomment this to pet Sherlock (may need to reset list for him to show up)
-////            latitude = "43.70315698";
-////            longitude = "-72.29038673";
-//        } else {
-//            latitude = "43.70315698";
-//            longitude = "-72.29038673";
-//        }
-////        Toast.makeText(getApplicationContext(), "Current location: " + latitude + " & " + longitude,
-////                Toast.LENGTH_SHORT).show();
-//        String url ="http://cs65.cs.dartmouth.edu/pat.pl?name=";
-//        JsonObjectRequest jsObjRequest = new JsonObjectRequest (Request.Method.GET,
-//                url + username + "&password=" + password + "&catid=" + catId +
-//                "&lat=" + latitude + "&lng=" + longitude,
-//                null,
-//                new Response.Listener<JSONObject>() {
-//                    @Override
-//                    public void onResponse(JSONObject response) {
-//                        onPetRequest(response);
-//                    }
-//                }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                Toast.makeText(getApplicationContext(), "Error: " + error.toString(),
-//                        Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//
-//        queue.add(jsObjRequest);
     }
 
     @Override
     public void onCatPet(String catName) {
-        Toast.makeText(this,"You just Pet - " + catName, Toast.LENGTH_LONG).show();
+        String latitude, longitude;
+        RequestQueue queue = Volley.newRequestQueue(this);
+        if (lastLocation != null) {
+            latitude = Double.toString(lastLocation.getLatitude());
+            longitude = Double.toString(lastLocation.getLongitude());
+            // uncomment this to pet Sherlock (may need to reset list for him to show up)
+            latitude = "43.70315698";
+            longitude = "-72.29038673";
+        } else {
+            latitude = "43.70315698";
+            longitude = "-72.29038673";
+        }
+//        Toast.makeText(getApplicationContext(), "Current location: " + latitude + " & " + longitude,
+//                Toast.LENGTH_SHORT).show();
+        String url ="http://cs65.cs.dartmouth.edu/pat.pl?name=";
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest (Request.Method.GET,
+                url + username + "&password=" + password + "&catid=" + catId +
+                "&lat=" + latitude + "&lng=" + longitude,
+                null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        onPetRequest(response);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getApplicationContext(), "Error: " + error.toString(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        queue.add(jsObjRequest);
     }
 
     private void onPetRequest(JSONObject response) {

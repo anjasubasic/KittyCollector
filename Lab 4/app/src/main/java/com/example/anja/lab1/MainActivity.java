@@ -51,12 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onPageSelected(int i) {
-                SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                Boolean resetList = sp.getBoolean("listReset", false);
-                if (i == 1 && resetList) { ((HistoryFragment)adapter.getItem(i)).getCatList(); }
-                SharedPreferences.Editor editor = sp.edit();
-                editor.putBoolean("listReset", false);
-                editor.apply();
+                if (i == 1) { ((HistoryFragment)adapter.getItem(i)).getCatList(); }
             }
         };
 
