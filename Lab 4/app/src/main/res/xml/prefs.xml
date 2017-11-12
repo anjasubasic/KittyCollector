@@ -27,4 +27,14 @@
         android:dialogTitle="@string/radiusLabel"
         android:layout="@layout/prefs_custom"/>
 
+    <ListPreference
+        android:key="alert"
+        android:title="@string/alertLabel"
+        android:summary="@string/alertDescription"
+        android:entries="@array/alertListArray"
+        android:entryValues="@array/alertListValues"
+        android:defaultValue="1"
+        android:dialogTitle="@string/alertLabel"
+        android:layout="@layout/prefs_custom"/>
+
 </PreferenceScreen>

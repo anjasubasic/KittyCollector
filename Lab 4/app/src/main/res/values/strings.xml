@@ -47,6 +47,8 @@
     <string name="difficultyDescription">(Don\'t forget to reset)</string>
     <string name="radiusLabel">Visibility Radius</string>
     <string name="radiusDescription">Set how far you can see the kitties</string>
+    <string name="alertLabel">Alert</string>
+    <string name="alertDescription">Configure notification alert settings</string>
     <string name="gameSettings">Cat List</string>
     <string name="backButton">cancel</string>
     <string name="currentPasswordLabel">Enter current password: </string>

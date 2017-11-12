@@ -33,4 +33,18 @@
         <item>2000</item>
         <item>infinite</item>
     </string-array>
+
+    <string-array name="alertListArray">
+        <item>Vibration</item>
+        <item>Sound</item>
+        <item>Both</item>
+        <item>None</item>
+    </string-array>
+
+    <string-array name="alertListValues">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>0</item>
+    </string-array>
 </resources>
