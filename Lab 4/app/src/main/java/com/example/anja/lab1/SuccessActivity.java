@@ -2,11 +2,9 @@ package com.example.anja.lab1;
 
 import android.app.TaskStackBuilder;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -34,13 +32,12 @@ public class SuccessActivity extends AppCompatActivity {
         Button doneButton = findViewById(R.id.doneButton);
         numPet = 0;
 
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        Bundle extras = getIntent().getExtras();
         Resources res = getResources();
-        String detail = String.format(res.getString(R.string.detailMessage),
-                sp.getString("catName", ""));
+        String detail = String.format(res.getString(R.string.detailMessage), extras.getString("name"));
         successDetail.setText(detail);
 
-        Picasso.with(this).load(sp.getString("catUrl", "")).into(catPicture);
+        Picasso.with(this).load(extras.getString("picUrl")).into(catPicture);
         catPicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

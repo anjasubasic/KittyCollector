@@ -15,6 +15,7 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 import android.widget.Toast;
 import com.android.volley.Request;
@@ -95,10 +96,13 @@ public class TrackingService extends Service {
         String distanceMessage = String.format("%.2f", distanceFromCat) + " m";
         String title = "Tracking " + catName;
         Intent stopIntent = new Intent(this, StopReceiver.class);
-        Intent notificationIntent = new Intent(this, MapActivity.class);
+        Intent mapIntent = new Intent(this, MapActivity.class);
+        mapIntent.putExtra("accessThroughNotification", true);
+        PendingIntent pendingIntent =
+                TaskStackBuilder.create(this)
+                        .addNextIntentWithParentStack(mapIntent)
+                        .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent pendingIntentStop = PendingIntent.getBroadcast(this, 12, stopIntent, 0);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
-                notificationIntent, 0);
 
         builder.setOngoing(true)
                 .setContentTitle(title)

@@ -87,7 +87,7 @@ public class MapActivity extends AppCompatActivity
     ImageView catPicture;
     TextView catName, catDistance;
     Button petButton, trackButton;
-    int catId, curTrackingCatId = -1;
+    int catId, curTrackingCatId;
     String username, password;
     Marker lastClicked = null;
     Boolean lastClickedPet= false, hardMode = false, notifAccess = false;
@@ -110,6 +110,7 @@ public class MapActivity extends AppCompatActivity
         username = sp.getString("username", "");
         password = sp.getString("password", "");
         hardMode = sp.getBoolean("hard", false);
+        curTrackingCatId = sp.getInt("trackingCatId", -1);
 
         catPicture = findViewById(R.id.catPicture);
         catName = findViewById(R.id.catName);
@@ -134,17 +135,13 @@ public class MapActivity extends AppCompatActivity
 
     private void setTrackButton() {
         boolean serviceRunning = checkServiceStatus();
-
-        if (serviceRunning != false){
-            trackButton.setText("Track");
-        }
-
-        if (trackButton.getText().equals("Track") && catId == curTrackingCatId && serviceRunning) {
-            trackButton.setText("Stop");
-        }
-
-        else {
-            trackButton.setText("Track");
+        Log.d("SERVICE", "setTrackButton: " + serviceRunning + " + " + curTrackingCatId);
+        if (!serviceRunning){
+            trackButton.setText(R.string.trackButton);
+        } else if (catId == curTrackingCatId) {
+            trackButton.setText(R.string.stopButton);
+        } else {
+            trackButton.setText(R.string.trackButton);
         }
     }
 
@@ -389,6 +386,13 @@ public class MapActivity extends AppCompatActivity
             Marker marker = map.addMarker(markerOptions);
             catMarkers.add(marker);
             marker.setTag(cat);
+
+            // for when the MapActivity was accessed with the notification
+            if(notifAccess && curTrackingCatId == cat.getInt("catId")) {
+                marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.catmarker_selected));
+                lastClicked = marker;
+                setPanel(cat);
+            }
         }
 
         hideOutOfBoundsMarkers();
@@ -505,7 +509,12 @@ public class MapActivity extends AppCompatActivity
             intent.putExtra("Cat", catId);
             intent.putExtra("CatName", catName.getText().toString());
             intent.putExtra("LastLocation", lastLocation);
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putInt("trackingCatId", catId);
+            editor.commit();
             curTrackingCatId = catId;
+            Log.d("TRACK", "sendTrackRequest: " + sp.getInt("trackingCatId", -1));
             startService(intent);
         }
 
@@ -589,12 +598,9 @@ public class MapActivity extends AppCompatActivity
         else {
             try {
                 if (response.getString("status").equals("OK")) {
-                    SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-                    SharedPreferences.Editor editor = sp.edit();
-                    editor.putString("catName", catName.getText().toString());
-                    editor.putString("catUrl", cat.getString("picUrl"));
-                    editor.commit();
                     Intent intent = new Intent(this, SuccessActivity.class);
+                    intent.putExtra("name",  cat.getString("name"));
+                    intent.putExtra("picUrl", cat.getString("picUrl"));
                     startActivity(intent);
                 } else if (response.getString("status").equals("ERROR")) {
                     Toast.makeText(getApplicationContext(),

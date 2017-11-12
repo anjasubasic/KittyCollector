@@ -65,6 +65,7 @@
     <!-- Map activity strings -->
     <string name="petButton">Pet</string>
     <string name="trackButton">Track</string>
+    <string name="stopButton">Stop</string>
     <string name="catNamePlaceholder">Click a marker!</string>
     <string name="catDistPlaceholder">Let\'s find the cats!</string>
     <string name="distanceUnits"> m away</string>
