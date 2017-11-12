@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -111,6 +112,22 @@ public class TrackingService extends Service {
                 .setSmallIcon(R.drawable.catmarker_selected)
                 .setTicker("Ticker")
                 .addAction(R.drawable.cross, "Stop", pendingIntentStop);
+
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        String alertPref = sp.getString("alert", "");
+
+        if (alertPref.equals("1")) { // vibrate only
+            builder.setVibrate(new long[] { 200, 200 });
+        }
+
+        else if (alertPref.equals("2")){ // sound only
+            builder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.meow));
+        }
+
+        else if (alertPref.equals("3")) { // vibrate and sound
+            builder.setVibrate(new long[] { 200, 200 });
+            builder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.meow));
+        }
 
         trackingNotification = builder.build();
     }
