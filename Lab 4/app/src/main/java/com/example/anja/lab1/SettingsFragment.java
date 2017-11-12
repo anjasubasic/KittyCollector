@@ -152,6 +152,9 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         editor.putBoolean("login", false);
         editor.commit();
 
+        Intent trackingIntent = new Intent(getContext(), TrackingService.class);
+        getContext().stopService(trackingIntent);
+
         Intent intent = new Intent(getActivity(), LoginActivity.class);
         // Clearing back stack code referenced from
         // https://stackoverflow.com/questions/5794506/android-clear-the-back-stack
