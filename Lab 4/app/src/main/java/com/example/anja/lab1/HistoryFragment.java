@@ -28,6 +28,7 @@ import org.json.JSONArray;
 
 public class HistoryFragment extends ListFragment {
     private static final String TAG = "History";
+    private int tryNum = 0;
 
     @Nullable
     @Override
@@ -58,12 +59,19 @@ public class HistoryFragment extends ListFragment {
                     @Override
                     public void onResponse(JSONArray response) {
                         setListAdapter(new CatListAdapter(getActivity(), response));
+                        tryNum = 0;
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getActivity(), "Error: " + error.toString(),
-                        Toast.LENGTH_SHORT).show();
+                if(tryNum < 3) {
+                    getCatList();
+                    tryNum++;
+                } else {
+                    Toast.makeText(getActivity(), R.string.serverErrorMessage,
+                            Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
         queue.add(jsObjRequest);

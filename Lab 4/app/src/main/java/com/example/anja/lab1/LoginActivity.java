@@ -42,6 +42,7 @@ public class LoginActivity extends AppCompatActivity {
     EditText username, password;
     TextView createAccountTxtView;
     CheckBox checkBox;
+    private int tryNum = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,7 +128,7 @@ public class LoginActivity extends AppCompatActivity {
         sendLoginRequest(username.getText().toString(), password.getText().toString());
     }
 
-    private void sendLoginRequest(String username, String password) {
+    private void sendLoginRequest(final String username, final String password) {
         RequestQueue queue = Volley.newRequestQueue(this);
         String url ="http://cs65.cs.dartmouth.edu/profile.pl?name=";
         JsonObjectRequest jsObjRequest = new JsonObjectRequest (Request.Method.GET,
@@ -136,12 +137,18 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         onLoginRequest(response);
+                        tryNum = 0;
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getApplicationContext(), "Error: " + error.toString(),
-                                Toast.LENGTH_SHORT).show();
+                        if(tryNum < 3) {
+                            sendLoginRequest(username, password);
+                            tryNum++;
+                        } else {
+                            Toast.makeText(getApplicationContext(), R.string.serverErrorMessage,
+                                    Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
         queue.add(jsObjRequest);

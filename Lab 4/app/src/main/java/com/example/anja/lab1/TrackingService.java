@@ -46,6 +46,7 @@ public class TrackingService extends Service {
     private NotificationManager notificationManager;
     private Notification trackingNotification;
     private Location lastLocation;
+    private int tryNum = 0;
 
     LocationListener mLocationListener = new LocationListener(LocationManager.NETWORK_PROVIDER);
 
@@ -179,12 +180,18 @@ public class TrackingService extends Service {
                     @Override
                     public void onResponse(JSONObject response) {
                         onDistanceRequest(response);
+                        tryNum = 0;
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "Error: " + error.toString(),
-                        Toast.LENGTH_SHORT).show();
+                if(tryNum < 3) {
+                    requestDistanceFromCat(lastLocation);
+                    tryNum++;
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.serverErrorMessage,
+                            Toast.LENGTH_SHORT).show();
+                }
             }
         });
         queue.add(jsObjRequest);

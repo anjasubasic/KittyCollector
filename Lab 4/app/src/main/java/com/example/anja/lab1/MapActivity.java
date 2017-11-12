@@ -1,8 +1,6 @@
 package com.example.anja.lab1;
 
 import android.app.ActivityManager;
-import android.app.Notification;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -92,10 +90,12 @@ public class MapActivity extends AppCompatActivity
     int catId, curTrackingCatId = -1;
     String username, password;
     Marker lastClicked = null;
-    Boolean lastClickedPet= false, hardMode = false;
+    Boolean lastClickedPet= false, hardMode = false, notifAccess = false;
     JSONObject cat;
     ArrayList<Marker> catMarkers;
     DecimalFormat mDistance = new DecimalFormat("#.00 m");
+    private Bitmap catImage;
+    private int tryNum = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,6 +125,11 @@ public class MapActivity extends AppCompatActivity
             @Override
             public void onClick(View v) { sendPetRequest(); }
         });
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            notifAccess = extras.getBoolean("accessThroughNotification");
+        }
     }
 
     private void setTrackButton() {
@@ -134,7 +139,7 @@ public class MapActivity extends AppCompatActivity
             trackButton.setText("Track");
         }
 
-        if (trackButton.getText().equals("Track") && catId == curTrackingCatId && serviceRunning == true) {
+        if (trackButton.getText().equals("Track") && catId == curTrackingCatId && serviceRunning) {
             trackButton.setText("Stop");
         }
 
@@ -318,13 +323,19 @@ public class MapActivity extends AppCompatActivity
                     @Override
                     public void onResponse(JSONArray response) {
                         // ADD CATS
+                        tryNum = 0;
                         onCatListRequest(response);
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "Error: " + error.toString(),
-                        Toast.LENGTH_SHORT).show();
+                if(tryNum < 3) {
+                    RequestCatLocations();
+                    tryNum++;
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.serverErrorMessage,
+                            Toast.LENGTH_SHORT).show();
+                }
             }
         });
         queue.add(jsObjRequest);
@@ -339,8 +350,7 @@ public class MapActivity extends AppCompatActivity
         else {
             try {
                 addCatsToMap(response);
-            }
-            catch (JSONException e){
+            } catch (JSONException e){
                     Toast.makeText(getApplicationContext(),
                             "Unable to parse response: " + response.toString(),
                             Toast.LENGTH_SHORT).show();
@@ -360,7 +370,7 @@ public class MapActivity extends AppCompatActivity
             String name = cat.getString("name");
             String lat = cat.getString("lat");
             String lng = cat.getString("lng");
-            String petted = cat.getString("petted");
+            Boolean petted = cat.getBoolean("petted");
 
             LatLng latLng = new LatLng(Double.parseDouble(lat), Double.parseDouble(lng));
             markerOptions.position(latLng);
@@ -369,8 +379,7 @@ public class MapActivity extends AppCompatActivity
             // NOTE for testing:
             // To test if cats have been petted with cat 1:
             // http://cs65.cs.dartmouth.edu/pat.pl?name=anja&password=anja&catid=1&lat=43.706838&lng=-72.287409
-            Boolean catPetted = Boolean.parseBoolean(petted);
-            if (catPetted) {
+            if (petted) {
                 markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.catmarker_petted));
             }
             else {
@@ -450,45 +459,7 @@ public class MapActivity extends AppCompatActivity
             try {
                 if (marker.getTag() != null) {
                     cat = new JSONObject(marker.getTag().toString());
-
-                    catId = Integer.parseInt(cat.getString("catId"));
-                    setTrackButton();
-                    catName.setText(cat.getString("name"));
-//                    Picasso.with(this).load(cat.getString("picUrl")).into(catPicture);
-                    new DownloadImageTask(catPicture).execute(cat.getString("picUrl"));
-
-                    Location catLocation = new Location("");
-                    catLocation.setLatitude(Double.parseDouble(cat.getString("lat")));
-                    catLocation.setLongitude(Double.parseDouble(cat.getString("lng")));
-
-                    float distanceFromCat;
-                    if (lastLocation != null) {
-                        distanceFromCat = lastLocation.distanceTo(catLocation);
-                    } else {
-                        Location placeholderLocation = new Location("");
-                        placeholderLocation.setLatitude(43.70315698);
-                        placeholderLocation.setLongitude(-72.29038673);
-                        distanceFromCat = placeholderLocation.distanceTo(catLocation);
-                    }
-                    catDistance.setText(mDistance.format(distanceFromCat));
-
-                    trackButton.setVisibility(View.VISIBLE);
-                    // TODO: make track button into STOP when already tracking
-                    petButton.setVisibility(View.VISIBLE);
-                    if (cat.getBoolean("petted")) {
-                        petButton.setAlpha(.5f);
-                        petButton.setClickable(false);
-                        trackButton.setAlpha(.5f);
-                        trackButton.setClickable(false);
-                        lastClickedPet = true;
-
-                    } else {
-                        petButton.setAlpha(1f);
-                        petButton.setClickable(true);
-                        trackButton.setAlpha(1f);
-                        trackButton.setClickable(true);
-                        lastClickedPet = false;
-                    }
+                    setPanel(cat);
                 }
             } catch (JSONException e) {
                 Log.d("ERROR", "onMarkerClick: can't parse JSON");
@@ -513,6 +484,7 @@ public class MapActivity extends AppCompatActivity
             try {
                 InputStream in = new java.net.URL(url).openStream();
                 mIcon11 = BitmapFactory.decodeStream(in);
+                catImage = mIcon11;
             } catch (Exception e) {
                 Log.e("Error", e.getMessage());
                 e.printStackTrace();
@@ -553,13 +525,7 @@ public class MapActivity extends AppCompatActivity
                 Config.catName = cat.getString("name");
                 Config.catLatitude = Double.parseDouble(cat.getString("lat"));
                 Config.catLongitude = Double.parseDouble(cat.getString("lng"));
-                try {
-                    URL url = new URL(cat.getString("picUrl"));
-                    Bitmap image = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-                    Config.catImage = Bitmap.createScaledBitmap(image, 350, 350, false);
-                } catch(IOException e) {
-                    System.out.println(e);
-                }
+                Config.catImage = Bitmap.createScaledBitmap(catImage, 350, 350, false);
                 Config.locDistanceRange = 30;
                 Config.useLocationFilter = false;
                 Config.onCatPetListener = this;
@@ -659,5 +625,46 @@ public class MapActivity extends AppCompatActivity
             }
         }
         return false;
+    }
+
+    private void setPanel(JSONObject cat) throws JSONException {
+        catId = Integer.parseInt(cat.getString("catId"));
+        setTrackButton();
+        catName.setText(cat.getString("name"));
+//                    Picasso.with(this).load(cat.getString("picUrl")).into(catPicture);
+        new DownloadImageTask(catPicture).execute(cat.getString("picUrl"));
+
+        Location catLocation = new Location("");
+        catLocation.setLatitude(Double.parseDouble(cat.getString("lat")));
+        catLocation.setLongitude(Double.parseDouble(cat.getString("lng")));
+
+        float distanceFromCat;
+        if (lastLocation != null) {
+            distanceFromCat = lastLocation.distanceTo(catLocation);
+        } else {
+            Location placeholderLocation = new Location("");
+            placeholderLocation.setLatitude(43.70315698);
+            placeholderLocation.setLongitude(-72.29038673);
+            distanceFromCat = placeholderLocation.distanceTo(catLocation);
+        }
+        catDistance.setText(mDistance.format(distanceFromCat));
+
+        trackButton.setVisibility(View.VISIBLE);
+        // TODO: make track button into STOP when already tracking
+        petButton.setVisibility(View.VISIBLE);
+        if (cat.getBoolean("petted")) {
+            petButton.setAlpha(.5f);
+            petButton.setClickable(false);
+            trackButton.setAlpha(.5f);
+            trackButton.setClickable(false);
+            lastClickedPet = true;
+
+        } else {
+            petButton.setAlpha(1f);
+            petButton.setClickable(true);
+            trackButton.setAlpha(1f);
+            trackButton.setClickable(true);
+            lastClickedPet = false;
+        }
     }
 }

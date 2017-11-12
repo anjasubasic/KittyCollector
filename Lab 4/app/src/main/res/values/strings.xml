@@ -23,6 +23,7 @@
     <string name="profileSaveText">Saved User Information</string>
     <string name="invalidCreateMessage">Invalid: Must have username and password!</string>
     <string name="notAvailableText">The username is already taken! Try with a different username.</string>
+    <string name="serverErrorMessage">The server is experiencing issues. Please try again in a minute.</string>
     <string name="noConnectionText">Connection Failed</string>
     <string name="password_status">Passwords Match</string>
     <string name="saved_info">Saved Settings</string>

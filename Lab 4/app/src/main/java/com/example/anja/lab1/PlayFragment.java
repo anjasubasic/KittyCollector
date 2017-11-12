@@ -35,6 +35,7 @@ public class PlayFragment extends Fragment {
     private TextView helloTxt, scoreTxt;
     private Button playButton, resetButton;
     private int numCats;
+    private int tryNum = 0;
 
     @Nullable
     @Override
@@ -101,12 +102,18 @@ public class PlayFragment extends Fragment {
                         String scoreTrack = "You have pet " + getPetNum(response) +
                                 " out of " + numCats + " cats!";
                         scoreTxt.setText(scoreTrack);
+                        tryNum = 0;
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getActivity(), "Error: " + error.toString(),
-                        Toast.LENGTH_SHORT).show();
+                if(tryNum < 3) {
+                    getCatNum();
+                    tryNum++;
+                } else {
+                    Toast.makeText(getActivity(), R.string.serverErrorMessage,
+                            Toast.LENGTH_SHORT).show();
+                }
             }
         });
         queue.add(jsObjRequest);
