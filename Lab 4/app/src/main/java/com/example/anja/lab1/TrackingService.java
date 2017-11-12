@@ -156,6 +156,10 @@ public class TrackingService extends Service {
             Log.e("TrackingService", "onLocationChanged: " + location);
             lastLocation.set(location);
             requestDistanceFromCat(location);
+
+            if (distanceFromCat < 5) { // not sure if it works yet, having server issues
+                buildForegroundNotification();
+            }
         }
 
         @Override
