@@ -1,28 +1,32 @@
-# 📱 Shaking Shiba -- CS65 Lab3
+# 📱 Shaking Shiba -- CS65 Lab4
 
 ## 💻 General Info
 
 ### 📝 Assignment Description
 
-In this lab, we build on top of lab 2 to implement Google Map and location tracking features to make a working prototype of the game.
+In this lab, we culminate our programming skills and add content to the history tab, run foreground services and add camera overlay to the cat petting adventure.
 
-For the server connectivity parts, we continued using the Volley library.
+For the server connectivity parts, we continued using the Volley library. Camera overlay was provided by Varun, the TA for this class. Some image loading was done through the Picasso library.
 
 ### 📱 App Flow
 
-![lab3prompt](images/lab3prompt.png)
+![lab3prompt](images/lab4prompt.png)
 
 When you try to log in, `username` and `password` are required.
 
 When you create an account, `username`,  `full_name`, and `password` are needed, with an option to upload an image.
 
-Creating an account automatically signs you in, taking to the main activity which is consisted of 4 tabs. The "Settings" tab and the "Play" tab are the only ones with features as of now.
+Creating an account automatically signs you in, taking to the main activity which is consisted of 3 tabs:
 
-After logging in, additional information from server will be put into the settings, such as how often your location is updated, how far you can see the cats etc. Once they are loaded, you will be able to change them accordingly in your local device. The changed settings are saved to the server *upon singing out*.
+- [Play](#play-tab)
+- [History](#history-tab)
+- [Settings](#settings-tab)
 
-You can also *change your password* in the settings page after you log in. You will have to re-enter your current password for safety.
+After logging in, additional information from server will be put into the settings. Once they are loaded, you will be able to change them accordingly in your local device. The changed settings are saved to the server *upon singing out*. You can also *change your password* in the settings page.
 
-The main game lived in the Play tab. Once you click the action button, a `MapActivity` is launched where you can see markers of cat locations and your location to start moving and collecting cats.
+The main game lives in the Play tab. Once you click the action button, a `MapActivity` is launched where you can see markers of cat locations and your location to start moving and collecting cats.
+
+The History tab hosts the list of cats in the current game. The full list of cats, with their name, location (in longitude and latitude), and whether they have been petted or not will be shown.
 
 ### 🏠 Installation
 
@@ -44,6 +48,13 @@ The app asks for these permissions:
 3. `STORAGE`: for storing photos and data
 4. `LOCATION`: for playing the location-based game
 
+### :book: Libraries
+
+1. Android crop: https://github.com/jdamcd/android-crop
+2. Volley: https://github.com/google/volley
+3. Camera Overlay: https://github.com/mishravarun/camera-overlay-demo
+4. Picasso: http://square.github.io/picasso/
+
 ## 🎨 Design Points
 
 Our app follows most points in the mockups shown in the App Flow section above, with a few differences that seemed reasonable to us.
@@ -56,15 +67,11 @@ We have a "Remember me" button that allows the user's input username and passwor
 
 #### 🧀 Edge cases
 
-According to our experiments and various sources such as https://perishablepress.com/stop-using-unsafe-characters-in-urls/, there are certain characters that will cause our HTTP query to go haywire because they serve as parsers.
-
-In an attempt to prevent any confusion, we have blocked such characters from being input into the `username` and `password` fields. This applies even when you are trying to change your password
+According to our experiments and various sources such as [this](https://perishablepress.com/stop-using-unsafe-characters-in-urls/), there are certain characters that will cause our HTTP query to go haywire because they serve as parsers. We have blocked such characters from being input into the `username` and `password` fields.
 
 #### ✅ Username and Password Check
 
 We have a section right next to the `username` and `password` fields that visually notifies the user if the input username is available after checking with the server, and to notify if the password has been verified with the dialog that prompts the user to confirm their password entry.
-
-According to these checks, the save button at the bottom of the screen will be enabled/disabled, making sure that the user has put in all the necessary data for creating an account.
 
 #### 🚗 Signing In
 
@@ -74,7 +81,13 @@ For example, we pass in `username`, `password`, `full_name`, and `profile` image
 
 You may receive a "Parsing error" message even when the `GET` request returns a valid response. We tried to catch all the "unable to parse JSON" exceptions, but please let us know if you find any.
 
-### 🐈 Play Tab and the Game (MapActivity + SuccessActivity)
+### 🐈 Play Tab
+
+#### ♻️ Reset Cat List
+
+You can *reset* the cat list from within the app! Maybe you want to re-pet a cat (you might need to reset a few times since the cat might not want to pop up) or want to have a fresh start. Or maybe you're a master collector and have collected 👏all👏 👏the👏 👏cats.👏
+
+**UPDATE**: The reset button has been moved from the Settings tab to the Play tab.
 
 #### 🌎 Auto-Zoom in Map
 
@@ -92,24 +105,21 @@ The distance from a selected cat is calculated using the `Location.distanceTo` f
 
 We noticed that the value being returned from this method tended to differ from what the server returned to us when we tried to `Pet` the selected cat. We couldn't figure out what was wrong, and tried using different methods such as `Location.distanceBetween`, but it was still a little (or sometimes quite a lot) off.
 
-So we decided to take this case and have a crack at it. (Thank you Anja!)
+**UPDATE**: It has been noted by Sergey that there is an error in the library being used by the server.
 
-Here is the location of Cookie we receive from the server:  
-![cookie](images/cookieLocation.png)
+#### 🗺 Tracking
 
-Here is our location at the point of testing:  
-![location](images/ourLocation.png)
+![tracking](images/tracking.png)
 
-We put the locations into an [online distance calculator](https://www.movable-type.co.uk/scripts/latlong.html):  
-![calculation](images/test.png)
+The app now has a tracking feature. Select a cat on the map, click the track button, and the service will run in the foreground to keep track of the user's distance from the selected cat.
 
-And this is what we got. It is around 12 meters off:  
-![ourResult](images/calcResult.png)
+Clicking on the notification will automatically open the application in the Map page, with the tracked cat selected.
 
-This is what the server returned. It is over 1000 meters off:  
-![serverResult](images/serverResult.png)
+#### 📷 Camera Overlay
 
-Well... We don't know what's happening in the server, but this proves that we do base our calculations off the situational locations and update it accordingly.  
+When the `Pet` button is clicked, the camera overlay will be launched. You will only be able to see the cat if you are within the range of 10m from the cat.
+
+Once the user sees the cat, they can click on the cat to pet it, which sends the pet request. If the user is too far, they will be notified so and the current distance from the cat will be given.
 
 #### 🎁 Success Activity  
 
@@ -123,6 +133,24 @@ Upon successful petting of the cat, a screen pops up saying you have befriended 
 
 **NOTE**: There is, in fact, another *hidden button* in this screen. What is it? Click around to find out... 😏  
 
+### ⏳ History Tab
+
+![history](images/history.png)
+
+The history tab gets the full list of cats from the server for the current game that the user is playing. Thus, the list will be reset whenever the user decides to reset the cat list.
+
+Each list item has the following:
+- Image of the cat
+- Name of the cat
+- Cat's location (longitude and latitude)
+- Whether the cat has been pet
+
+The last item, whether the cat has been pet, is indicated by a handy icon at the right end of the list. It will be grey if the user has not interacted with the cat yet, and colors will be filled if the user has interacted with the cat.
+
+In order to make sure that the most current list is displayed, we made the app call the server every time the History tab is selected. Due to the recent server issues, it may show some error messages throughout the gameplay.
+
+Click the cats to say hi to them!
+
 ### ⚙️ Settings Tab
 
 ![settings](images/settings.png)
@@ -131,9 +159,7 @@ Upon successful petting of the cat, a screen pops up saying you have befriended 
 
 Signing out sends a `POST` request to the server to update any changes in the settings. This allows you to have your settings across devices, if you sign in with the same `username` and `password`.
 
-#### ♻️ Reset Cat List
-
-You can *reset* the cat list from within the app! Just go to the settings page and hit the reset button when you want to re-pet a cat (you might need to reset a few times since the cat might not want to pop up) or want to have a fresh start. Or maybe you're a master collector and have collected 👏all👏 👏the👏 👏cats.👏
+Signing out will also stop whatever tracking service was running.
 
 #### ⏰ Location Update Frequency
 
@@ -146,6 +172,10 @@ Toggling this option on will make the getting the cat list request (`catlist.pl`
 #### 👀 Visibility Radius
 
 Changing the settings in this menu will determine how far you can see the cats on the map. When a selected cat goes out of this visibility radius, the information panel in the game screen will be reset to the placeholder information, prompting the user to click on a marker.
+
+#### ⚠️ Notification Settings
+
+The notification settings allows the user to choose how to be notified via a notification. This could be a sound, vibration, both, or none. *Hmm, I wonder what the notification sound is?*
 
 ## Credits 🐶 Team Shaking Shiba
 ![shiba](app/src/main/res/drawable/shiba.jpg)
