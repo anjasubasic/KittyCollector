@@ -51,14 +51,13 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onPageSelected(int i) {
+                if (i == 0) { ((PlayFragment)adapter.getItem(i)).getCatNum(); }
                 if (i == 1) { ((HistoryFragment)adapter.getItem(i)).getCatList(); }
             }
         };
 
         viewPager.addOnPageChangeListener(pageChangeListener);
     }
-
-
 
     private void loadPreferences() {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);

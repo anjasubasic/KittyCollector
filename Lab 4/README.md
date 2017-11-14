@@ -109,13 +109,15 @@ We noticed that the value being returned from this method tended to differ from 
 
 **UPDATE**: It has been noted by Sergey that there is an error in the library being used by the server.
 
-#### 🗺 Tracking
+#### 🗺 **NEW!!** Tracking
 
 ![tracking](images/tracking.png)
 
 The app now has a tracking feature. Select a cat on the map, click the track button, and the service will run in the foreground to keep track of the user's distance from the selected cat.
 
 Clicking on the notification will automatically open the application in the Map page, with the tracked cat selected.
+
+Tracking is automatically cancelled when the user signs out or the user resets the list.
 
 #### 📷 Camera Overlay
 

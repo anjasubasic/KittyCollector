@@ -73,8 +73,6 @@ public class PlayFragment extends Fragment {
         String helloMessage = "Hi, @" + sp.getString("username", "") + "!";
         helloTxt.setText(helloMessage);
 
-
-
         getCatNum();
 
         if (sp == null) {
@@ -83,7 +81,7 @@ public class PlayFragment extends Fragment {
         }
     }
 
-    private void getCatNum() {
+    public void getCatNum() {
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String username = sp.getString("username", "");
@@ -169,6 +167,9 @@ public class PlayFragment extends Fragment {
                                     Toast.makeText(getActivity(), "cat list reset",
                                             Toast.LENGTH_SHORT).show();
                                     getCatNum();
+                                    // cancel tracking
+                                    Intent trackingIntent = new Intent(getContext(), TrackingService.class);
+                                    getContext().stopService(trackingIntent);
                                 } else {
                                     Toast.makeText(getActivity(),
                                             response.getString("error"), Toast.LENGTH_SHORT).show();
