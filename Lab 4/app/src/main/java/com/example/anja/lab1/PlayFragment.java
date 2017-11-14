@@ -3,9 +3,11 @@ package com.example.anja.lab1;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,8 +50,6 @@ public class PlayFragment extends Fragment {
         resetButton = view.findViewById(R.id.resetButton);
         numCats = 0;
 
-        loadUserInfo();
-
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -63,6 +63,8 @@ public class PlayFragment extends Fragment {
             public void onClick(View v) { onResetClicked(); }
         });
 
+        loadUserInfo();
+
         return view;
     }
 
@@ -70,6 +72,8 @@ public class PlayFragment extends Fragment {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String helloMessage = "Hi, @" + sp.getString("username", "") + "!";
         helloTxt.setText(helloMessage);
+
+
 
         getCatNum();
 
@@ -80,7 +84,6 @@ public class PlayFragment extends Fragment {
     }
 
     private void getCatNum() {
-        //TODO: Calculate how many cats have been petted
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String username = sp.getString("username", "");
@@ -111,8 +114,18 @@ public class PlayFragment extends Fragment {
                     getCatNum();
                     tryNum++;
                 } else {
-                    Toast.makeText(getActivity(), R.string.serverErrorMessage,
-                            Toast.LENGTH_SHORT).show();
+                    final Toast toast = Toast.makeText(getActivity(), R.string.serverErrorMessage,
+                            Toast.LENGTH_SHORT);
+                    // showing short toasts referenced from
+                    // https://stackoverflow.com/questions/3775074/set-toast-appear-length/9715422#9715422
+                    toast.show();
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            toast.cancel();
+                        }
+                    }, 1000);
                     tryNum = 0;
                 }
             }

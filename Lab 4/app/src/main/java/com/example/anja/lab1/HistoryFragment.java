@@ -2,6 +2,7 @@ package com.example.anja.lab1;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -68,8 +69,18 @@ public class HistoryFragment extends ListFragment {
                     getCatList();
                     tryNum++;
                 } else {
-                    Toast.makeText(getActivity(), R.string.serverErrorMessage,
-                            Toast.LENGTH_SHORT).show();
+                    final Toast toast = Toast.makeText(getActivity(), R.string.serverErrorMessage,
+                            Toast.LENGTH_SHORT);
+                    // showing short toasts referenced from
+                    // https://stackoverflow.com/questions/3775074/set-toast-appear-length/9715422#9715422
+                    toast.show();
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            toast.cancel();
+                        }
+                    }, 1000);
                     tryNum = 0;
                 }
 

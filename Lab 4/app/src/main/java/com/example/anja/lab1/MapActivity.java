@@ -535,7 +535,7 @@ public class MapActivity extends AppCompatActivity
                 Config.catLatitude = Double.parseDouble(cat.getString("lat"));
                 Config.catLongitude = Double.parseDouble(cat.getString("lng"));
                 Config.catImage = Bitmap.createScaledBitmap(catImage, 350, 350, false);
-                Config.locDistanceRange = 10;
+                Config.locDistanceRange = 15;
                 Config.useLocationFilter = true;
                 Config.onCatPetListener = this;
                 Intent i = new Intent(this, CameraViewActivity.class);

@@ -33,13 +33,14 @@
     <string name="login_button">Login</string>
     <string name="remember">Remember Me</string>
     <string name="new_account">Create a New Account</string>
+    <string name="credentials">Login credentials seem to have changed. Please log back in.</string>
 
     <!-- Settings tab settings -->
     <string name="profilePartLabel">Profile</string>
     <string name="fullnamePlaceholder">Full Name</string>
     <string name="usernamePlaceholder">"@username"</string>
     <string name="signOutButton">Sign Out</string>
-    <string name="signOutMessage">Successfully signed out</string>
+    <string name="signOutMessage">Successfully signed out!</string>
     <string name="changePwdButton">Change Password</string>
     <string name="preferencesPartLabel">Preferences</string>
     <string name="updateLabel">Location Update</string>
