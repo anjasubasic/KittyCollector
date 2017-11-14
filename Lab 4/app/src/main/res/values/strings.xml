@@ -39,6 +39,7 @@
     <string name="fullnamePlaceholder">Full Name</string>
     <string name="usernamePlaceholder">"@username"</string>
     <string name="signOutButton">Sign Out</string>
+    <string name="signOutMessage">Successfully signed out</string>
     <string name="changePwdButton">Change Password</string>
     <string name="preferencesPartLabel">Preferences</string>
     <string name="updateLabel">Location Update</string>

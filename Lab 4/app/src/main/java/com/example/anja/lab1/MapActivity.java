@@ -529,28 +529,21 @@ public class MapActivity extends AppCompatActivity
         try {
             if (lastClicked.getTag() != null) {
                 cat = new JSONObject(lastClicked.getTag().toString());
-
                 catId = Integer.parseInt(cat.getString("catId"));
                 setTrackButton();
                 Config.catName = cat.getString("name");
                 Config.catLatitude = Double.parseDouble(cat.getString("lat"));
                 Config.catLongitude = Double.parseDouble(cat.getString("lng"));
                 Config.catImage = Bitmap.createScaledBitmap(catImage, 350, 350, false);
-                Config.locDistanceRange = 30;
-                Config.useLocationFilter = false;
+                Config.locDistanceRange = 10;
+                Config.useLocationFilter = true;
                 Config.onCatPetListener = this;
+                Intent i = new Intent(this, CameraViewActivity.class);
+                startActivity(i);
             }
         } catch (JSONException e) {
-            Config.catName = "Kitty";
-            Config.catLatitude = 43.706844;
-            Config.catLongitude = -72.2876208;
-            Config.locDistanceRange = 30;
-            Config.useLocationFilter = false; // use this only for testing. This should be true in the final app.
-            Config.onCatPetListener = this;
+            Toast.makeText(this, "Error loading cat into reality", Toast.LENGTH_SHORT).show();
         }
-
-        Intent i = new Intent(this, CameraViewActivity.class);
-        startActivity(i);
     }
 
     @Override

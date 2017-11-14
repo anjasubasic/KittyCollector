@@ -214,7 +214,7 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
             Toast.makeText(getActivity().getApplicationContext(), getString(R.string.noConnectionText),
                     Toast.LENGTH_SHORT).show();
         else
-            Toast.makeText(getActivity().getApplicationContext(), res,
+            Toast.makeText(getActivity().getApplicationContext(), R.string.signOutMessage,
                     Toast.LENGTH_SHORT).show();
     }
 
