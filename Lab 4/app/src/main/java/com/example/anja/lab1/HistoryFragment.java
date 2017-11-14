@@ -70,6 +70,7 @@ public class HistoryFragment extends ListFragment {
                 } else {
                     Toast.makeText(getActivity(), R.string.serverErrorMessage,
                             Toast.LENGTH_SHORT).show();
+                    tryNum = 0;
                 }
 
             }

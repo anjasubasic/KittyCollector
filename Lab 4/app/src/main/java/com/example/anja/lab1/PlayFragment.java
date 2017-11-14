@@ -113,6 +113,7 @@ public class PlayFragment extends Fragment {
                 } else {
                     Toast.makeText(getActivity(), R.string.serverErrorMessage,
                             Toast.LENGTH_SHORT).show();
+                    tryNum = 0;
                 }
             }
         });
@@ -149,6 +150,7 @@ public class PlayFragment extends Fragment {
                             Toast.makeText(getActivity(),
                                     R.string.noConnectionText, Toast.LENGTH_SHORT).show();
                         } else {
+                            tryNum = 0;
                             try {
                                 if (response.getString("status").equals("OK")) {
                                     Toast.makeText(getActivity(), "cat list reset",
@@ -168,8 +170,15 @@ public class PlayFragment extends Fragment {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getActivity(), "Error: " + error.toString(),
-                        Toast.LENGTH_SHORT).show();
+                if(tryNum < 3) {
+                    onResetClicked();
+                    tryNum++;
+                } else {
+                    Toast.makeText(getActivity(), R.string.serverErrorMessage,
+                            Toast.LENGTH_SHORT).show();
+                    tryNum = 0;
+                }
+
             }
         });
         queue.add(jsObjRequest);

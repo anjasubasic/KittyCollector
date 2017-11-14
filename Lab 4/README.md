@@ -8,6 +8,10 @@ In this lab, we culminate our programming skills and add content to the history 
 
 For the server connectivity parts, we continued using the Volley library. Camera overlay was provided by Varun, the TA for this class. Some image loading was done through the Picasso library.
 
+### Server Issues
+
+In an attempt to handle server issues (mostly 500 errors), we have made some requests try themselves again 3 times before notifying the user that the server is experiencing issues. This greatly reduced the number of error messages being shown.
+
 ### 📱 App Flow
 
 ![lab3prompt](images/lab4prompt.png)
@@ -16,11 +20,7 @@ When you try to log in, `username` and `password` are required.
 
 When you create an account, `username`,  `full_name`, and `password` are needed, with an option to upload an image.
 
-Creating an account automatically signs you in, taking to the main activity which is consisted of 3 tabs:
-
-- [Play](#play-tab)
-- [History](#history-tab)
-- [Settings](#settings-tab)
+Creating an account automatically signs you in, taking to the main activity which is consisted of 3 tabs.
 
 After logging in, additional information from server will be put into the settings. Once they are loaded, you will be able to change them accordingly in your local device. The changed settings are saved to the server *upon singing out*. You can also *change your password* in the settings page.
 

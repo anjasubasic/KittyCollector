@@ -332,6 +332,7 @@ public class MapActivity extends AppCompatActivity
                 } else {
                     Toast.makeText(getApplicationContext(), R.string.serverErrorMessage,
                             Toast.LENGTH_SHORT).show();
+                    tryNum = 0;
                 }
             }
         });
@@ -553,15 +554,15 @@ public class MapActivity extends AppCompatActivity
     }
 
     @Override
-    public void onCatPet(String catName) {
+    public void onCatPet(final String catName) {
         String latitude, longitude;
         RequestQueue queue = Volley.newRequestQueue(this);
         if (lastLocation != null) {
             latitude = Double.toString(lastLocation.getLatitude());
             longitude = Double.toString(lastLocation.getLongitude());
             // uncomment this to pet Sherlock (may need to reset list for him to show up)
-            latitude = "43.70315698";
-            longitude = "-72.29038673";
+//            latitude = "43.70315698";
+//            longitude = "-72.29038673";
         } else {
             latitude = "43.70315698";
             longitude = "-72.29038673";
@@ -581,8 +582,14 @@ public class MapActivity extends AppCompatActivity
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), "Error: " + error.toString(),
-                        Toast.LENGTH_SHORT).show();
+                if(tryNum < 3) {
+                    onCatPet(catName);
+                    tryNum++;
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.serverErrorMessage,
+                            Toast.LENGTH_SHORT).show();
+                    tryNum = 0;
+                }
             }
         });
 

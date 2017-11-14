@@ -46,6 +46,7 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
     private Button passwordButton;
     int requestCode = 123;
     private Fragment fragment;
+    private int tryNum = 0;
 
     @Nullable
     @Override
@@ -179,11 +180,18 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
                         @Override
                         public void onResponse(JSONObject response) {
                             postResultsToUI(response.toString());
+                            tryNum = 0;
                         }
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    postResultsToUI("Error" + error.toString());
+                    if(tryNum < 3) {
+                        postUserInfo();
+                        tryNum++;
+                    } else {
+                        postResultsToUI("Error" + error.toString());
+                        tryNum = 0;
+                    }
                 }
             }) {
                 @Override
@@ -205,9 +213,9 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         if (res == null)
             Toast.makeText(getActivity().getApplicationContext(), getString(R.string.noConnectionText),
                     Toast.LENGTH_SHORT).show();
-//        else
-//            Toast.makeText(getActivity().getApplicationContext(), res,
-//                    Toast.LENGTH_SHORT).show();
+        else
+            Toast.makeText(getActivity().getApplicationContext(), res,
+                    Toast.LENGTH_SHORT).show();
     }
 
     private JSONObject buildJSONObject(){
@@ -233,7 +241,7 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
         return json;
     }
 
-    public void updatePassword(String currentPass, final String newPass) {
+    public void updatePassword(final String currentPass, final String newPass) {
         String url = "http://cs65.cs.dartmouth.edu/changepass.pl?name=";
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String username = sp.getString("username", "");
@@ -254,6 +262,7 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
                                 if (response.getString("status").equals("OK")) {
                                     Toast.makeText(getActivity(), "Password changed",
                                             Toast.LENGTH_SHORT).show();
+                                    tryNum = 0;
                                     // don't forget to save new password to shared preferences!!
                                     SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
                                     SharedPreferences.Editor editor = sp.edit();
@@ -274,8 +283,14 @@ public class SettingsFragment extends android.support.v4.app.DialogFragment {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getActivity(), "Error: " + error.toString(),
-                        Toast.LENGTH_SHORT).show();
+                if(tryNum < 3) {
+                    updatePassword(currentPass, newPass);
+                    tryNum++;
+                } else {
+                    Toast.makeText(getActivity(), R.string.serverErrorMessage,
+                            Toast.LENGTH_SHORT).show();
+                    tryNum = 0;
+                }
             }
         });
         queue.add(jsObjRequest);
