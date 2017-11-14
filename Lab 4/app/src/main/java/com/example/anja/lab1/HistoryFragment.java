@@ -80,7 +80,7 @@ public class HistoryFragment extends ListFragment {
                         public void run() {
                             toast.cancel();
                         }
-                    }, 1000);
+                    }, 1200);
                     tryNum = 0;
                 }
 

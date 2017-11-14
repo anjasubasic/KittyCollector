@@ -65,6 +65,8 @@ Our app follows most points in the mockups shown in the App Flow section above, 
 
 We have a "Remember me" button that allows the user's input username and password to be saved when the user logs out. This feature is enabled by default when a new account is created.
 
+**UPDATE**: In the case that the user's password has been changed (from a different device, presumably), the app will automatically log the user out and redirect to the log in page.
+
 #### 🧀 Edge cases
 
 According to our experiments and various sources such as [this](https://perishablepress.com/stop-using-unsafe-characters-in-urls/), there are certain characters that will cause our HTTP query to go haywire because they serve as parsers. We have blocked such characters from being input into the `username` and `password` fields.
