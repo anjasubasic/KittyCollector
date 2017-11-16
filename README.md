@@ -1,4 +1,4 @@
-# 📱 Shaking Shiba -- CS65 Lab4
+﻿# 📱 Shaking Shiba -- CS65 Lab4
 
 ## 💻 General Info
 
@@ -14,7 +14,7 @@ In an attempt to handle server issues (mostly 500 errors), we have made some req
 
 ### 📱 App Flow
 
-![lab3prompt](images/lab4prompt.png)
+![lab3prompt](KittyCollector/images/lab4prompt.png)
 
 When you try to log in, `username` and `password` are required.
 
@@ -111,7 +111,7 @@ We noticed that the value being returned from this method tended to differ from 
 
 #### 🗺 **NEW!!** Tracking
 
-![tracking](images/tracking.png)
+![tracking](KittyCollector/images/tracking.png)
 
 The app now has a tracking feature. Select a cat on the map, click the track button, and the service will run in the foreground to keep track of the user's distance from the selected cat.
 
@@ -127,7 +127,7 @@ Once the user sees the cat, they can click on the cat to pet it, which sends the
 
 #### 🎁 Success Activity  
 
-![success](images/successActivity.png)
+![success](KittyCollector/images/successActivity.png)
 
 Upon successful petting of the cat, a screen pops up saying you have befriended a cat. There are two buttons in this screen:  
 
@@ -139,7 +139,7 @@ Upon successful petting of the cat, a screen pops up saying you have befriended 
 
 ### ⏳ History Tab
 
-![history](images/history.png)
+![history](KittyCollector/images/history.png)
 
 The history tab gets the full list of cats from the server for the current game that the user is playing. Thus, the list will be reset whenever the user decides to reset the cat list.
 
@@ -157,7 +157,7 @@ Click the cats to say hi to them!
 
 ### ⚙️ Settings Tab
 
-![settings](images/settings.png)
+![settings](KittyCollector/images/settings.png)
 
 #### 🚶 Sign Out
 
@@ -182,6 +182,6 @@ Changing the settings in this menu will determine how far you can see the cats o
 The notification settings allows the user to choose how to be notified via a notification. This could be a sound, vibration, both, or none. *Hmm, I wonder what the notification sound is?*
 
 ## Credits 🐶 Team Shaking Shiba
-![shiba](app/src/main/res/drawable/shiba.jpg)
+![shiba](KittyCollector/app/src/main/res/drawable/shiba.jpg)
  - Jenny Seong
  - Anja Subasic
